@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const NAV_LINKS = [
-  { label: 'Home', href: '#home' },
-  { label: 'Inventory', href: '#inventory' },
+  { label: 'Home', href: '/' },
+  { label: 'Inventory', href: '/inventory' },
   { label: 'Compare', href: '#compare' },
   { label: 'New Arrivals', href: '#new-arrivals' },
   { label: 'Special Offers', href: '#special-offers' },
@@ -72,9 +72,9 @@ const Navbar = () => {
           gap: '4px',
         }} className="nav-desktop">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.label}
-              href={link.href}
+              to={link.href}
               style={{
                 fontFamily: "'Manrope', sans-serif",
                 fontWeight: 500,
@@ -96,7 +96,7 @@ const Navbar = () => {
               }}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -200,9 +200,9 @@ const Navbar = () => {
           animation: 'fadeIn 0.25s ease',
         }}>
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.label}
-              href={link.href}
+              to={link.href}
               onClick={() => setMenuOpen(false)}
               style={{
                 fontFamily: "'Manrope', sans-serif",
@@ -213,7 +213,7 @@ const Navbar = () => {
               }}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
           <div style={{ height: '1px', width: '60px', background: 'rgba(0,0,0,0.1)', margin: '8px 0' }} />
           <button
