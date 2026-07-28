@@ -16,6 +16,7 @@ requirements.md
 .vscode/*
 !.vscode/extensions.json
 .idea
+.gemini
 .DS_Store
 *.suo
 *.ntvs*

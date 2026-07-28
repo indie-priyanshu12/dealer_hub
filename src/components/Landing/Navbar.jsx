@@ -1,0 +1,253 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+const NAV_LINKS = [
+  { label: 'Home', href: '#home' },
+  { label: 'Inventory', href: '#inventory' },
+  { label: 'Compare', href: '#compare' },
+  { label: 'New Arrivals', href: '#new-arrivals' },
+  { label: 'Special Offers', href: '#special-offers' },
+  { label: 'Contact', href: '#contact' },
+];
+
+const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <>
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        padding: scrolled ? '0 48px' : '0 48px',
+        height: scrolled ? '56px' : '64px',
+        overflow: 'visible',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: scrolled
+          ? 'rgba(248, 248, 246, 0.85)'
+          : 'transparent',
+        backdropFilter: scrolled ? 'blur(16px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'none',
+        borderBottom: scrolled
+          ? '1.5px solid rgba(0,0,0,0.12)'
+          : '1.5px solid rgba(0,0,0,0.08)',
+        transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+      }}>
+
+        {/* ── Logo ── */}
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', position: 'relative' }}>
+          <img
+            src="/text-logo.svg"
+            alt="DealerHub"
+            style={{
+              height: '128px',
+              width: 'auto',
+              display: 'block',
+              position: 'absolute',
+              top: '50%',
+              left: 0,
+              transform: 'translateY(-50%)',
+            }}
+          />
+          {/* Invisible spacer so other flex items respect logo width */}
+          <div style={{ height: '128px', width: '220px', visibility: 'hidden' }} />
+        </Link>
+
+        {/* ── Nav Links (Desktop) ── */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+        }} className="nav-desktop">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontWeight: 500,
+                fontSize: '14px',
+                color: '#3d4a6b',
+                textDecoration: 'none',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(26,39,68,0.07)';
+                e.currentTarget.style.color = '#1a2744';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#3d4a6b';
+              }}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+
+        {/* ── Login Button ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={() => navigate('/auth')}
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontWeight: 600,
+              fontSize: '14px',
+              color: '#1a2744',
+              background: 'transparent',
+              border: '1.5px solid rgba(26,39,68,0.25)',
+              borderRadius: '10px',
+              padding: '8px 20px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = '#1a2744';
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.borderColor = '#1a2744';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = '#1a2744';
+              e.currentTarget.style.borderColor = 'rgba(26,39,68,0.25)';
+            }}
+          >
+            Login
+          </button>
+
+          <button
+            onClick={() => navigate('/auth')}
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontWeight: 600,
+              fontSize: '14px',
+              color: '#fff',
+              background: 'linear-gradient(135deg, #1a2744 0%, #2d4a8f 100%)',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '9px 22px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(26,39,68,0.25)',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 6px 18px rgba(26,39,68,0.35)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,39,68,0.25)';
+            }}
+          >
+            Join Free →
+          </button>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            className="nav-hamburger"
+            style={{
+              display: 'none',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '6px',
+              color: '#1a2744',
+            }}
+            aria-label="Toggle menu"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              {menuOpen
+                ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                : <><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></>
+              }
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      {/* ── Mobile Menu Drawer ── */}
+      {menuOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 99,
+          background: 'rgba(248,248,246,0.97)',
+          backdropFilter: 'blur(20px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '24px',
+          animation: 'fadeIn 0.25s ease',
+        }}>
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontWeight: 600,
+                fontSize: '22px',
+                color: '#1a2744',
+                textDecoration: 'none',
+              }}
+            >
+              {link.label}
+            </a>
+          ))}
+          <div style={{ height: '1px', width: '60px', background: 'rgba(0,0,0,0.1)', margin: '8px 0' }} />
+          <button
+            onClick={() => { navigate('/auth'); setMenuOpen(false); }}
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontWeight: 700,
+              fontSize: '18px',
+              color: '#fff',
+              background: 'linear-gradient(135deg, #1a2744 0%, #2d4a8f 100%)',
+              border: 'none',
+              borderRadius: '14px',
+              padding: '14px 40px',
+              cursor: 'pointer',
+            }}
+          >
+            Login / Join Free
+          </button>
+        </div>
+      )}
+
+      {/* ── Responsive CSS ── */}
+      <style>{`
+        @media (max-width: 768px) {
+          .nav-desktop { display: none !important; }
+          .nav-hamburger { display: flex !important; }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </>
+  );
+};
+
+export default Navbar;
