@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Landing/Navbar';
 import VehicleCard from '../components/Inventory/VehicleCard';
 import ViewToggle from '../components/Inventory/ViewToggle';
+import SearchFilterBar from '../components/Inventory/SearchFilterBar';
 import { motion } from 'framer-motion';
 
 const getStoredUser = () => {
@@ -12,21 +13,75 @@ const getStoredUser = () => {
   }
 };
 
+const DEFAULT_FILTERS = { search: '', category: '', fuelType: '', minPrice: '', maxPrice: '', sort: '' };
+const SEARCH_DEBOUNCE_MS = 400;
+
 const InventoryPage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [user] = useState(getStoredUser);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
+  const isFirstLoad = useRef(true);
+  // Explicit actions (Apply / Reset) should feel instant; only live search-box
+  // typing should wait out the debounce below.
+  const skipDebounceRef = useRef(false);
+
+  const hasActiveFilters = Object.keys(DEFAULT_FILTERS).some((key) => filters[key] !== DEFAULT_FILTERS[key]);
+
+  const handleSearchChange = (value) => {
+    setFilters((prev) => ({ ...prev, search: value }));
+  };
+
+  const applyFilterPanel = (draft) => {
+    skipDebounceRef.current = true;
+    setFilters((prev) => ({ ...prev, ...draft }));
+  };
+
+  const applySortPanel = (sortValue) => {
+    skipDebounceRef.current = true;
+    setFilters((prev) => ({ ...prev, sort: sortValue }));
+  };
+
+  const clearFilters = () => {
+    skipDebounceRef.current = true;
+    setFilters(DEFAULT_FILTERS);
+  };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const isInitial = isFirstLoad.current;
+    const skipDebounce = skipDebounceRef.current;
+    skipDebounceRef.current = false;
+
     const fetchVehicles = async () => {
+      if (isInitial) {
+        setLoading(true);
+      } else {
+        setSearching(true);
+      }
+
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('/api/vehicles', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const params = new URLSearchParams();
+        if (filters.search) params.set('search', filters.search);
+        if (filters.category) params.set('category', filters.category);
+        if (filters.fuelType) params.set('fuelType', filters.fuelType);
+        if (filters.minPrice) params.set('minPrice', filters.minPrice);
+        if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+        if (filters.sort) {
+          const [sortBy, order] = filters.sort.split('_');
+          params.set('sortBy', sortBy);
+          params.set('order', order);
+        }
+
+        const response = await fetch(`/api/vehicles/search?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
         });
 
         if (response.status === 401) {
@@ -39,42 +94,74 @@ const InventoryPage = () => {
         if (!response.ok) {
           throw new Error(`Server returned a ${response.status} status. The backend API might be down or missing this route.`);
         }
-        
+
         // Sometimes non-JSON is returned (e.g., 404 HTML pages)
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Received non-JSON response. The backend server might need to be restarted to register the new routes.");
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Received non-JSON response. The backend server might need to be restarted to register the new routes.');
         }
 
         const data = await response.json();
-        
-        setTimeout(() => {
+
+        const finishLoading = () => {
+          setLoading(false);
+          setSearching(false);
+          isFirstLoad.current = false;
+        };
+
+        const applyResult = () => {
           if (data.success) {
-            if (data.data.length === 0) {
-              setError("No vehicles found in the database. Did you run the seed script?");
-            } else {
-              setVehicles(data.data);
+            setVehicles(data.data);
+            setError(null);
+            // Capture the full set of filter options once, from the unfiltered
+            // first load — later (filtered) responses must not shrink these lists.
+            if (isInitial) {
+              setCategoryOptions([...new Set(data.data.map((v) => v.category).filter(Boolean))].sort());
+              setFuelTypeOptions([...new Set(data.data.map((v) => v.fuelType).filter(Boolean))].sort());
             }
           } else {
-            setError(data.error || "Failed to fetch vehicles from the server.");
+            setError(data.error || 'Failed to fetch vehicles from the server.');
           }
-          setLoading(false);
-        }, 1500);
+          finishLoading();
+        };
+
+        if (isInitial) {
+          // Gives the loading skeleton a moment to be visible on first paint;
+          // subsequent searches apply immediately so filtering feels responsive.
+          setTimeout(() => {
+            if (!controller.signal.aborted) applyResult();
+          }, 1500);
+        } else {
+          applyResult();
+        }
       } catch (err) {
-        console.error("Failed to fetch vehicles", err);
-        setError(err.message || "A network error occurred while connecting to the backend.");
+        if (err.name === 'AbortError') return;
+        console.error('Failed to fetch vehicles', err);
+        setError(err.message || 'A network error occurred while connecting to the backend.');
         setLoading(false);
+        setSearching(false);
+        isFirstLoad.current = false;
       }
     };
 
-    fetchVehicles();
-  }, []);
+    // First load and explicit Apply/Reset actions fire immediately; only live
+    // search-box typing is debounced so it doesn't fire a request per keystroke.
+    const timeoutId = setTimeout(fetchVehicles, (isInitial || skipDebounce) ? 0 : SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [filters]);
+
+  const noVehiclesAtAll = !loading && !error && vehicles.length === 0 && !hasActiveFilters;
+  const noSearchResults = !loading && !error && vehicles.length === 0 && hasActiveFilters;
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F8F8F6', paddingBottom: '100px' }}>
       <Navbar />
 
-      <main style={{ paddingTop: '120px', maxWidth: '1400px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
+      <main style={{ paddingTop: '76px', maxWidth: '1400px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
           <div>
             <h1 style={{
@@ -100,6 +187,26 @@ const InventoryPage = () => {
           <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
         </div>
 
+        {!loading && !error && (
+          <SearchFilterBar
+            searchValue={filters.search}
+            onSearchChange={handleSearchChange}
+            committedFilters={{
+              category: filters.category,
+              fuelType: filters.fuelType,
+              minPrice: filters.minPrice,
+              maxPrice: filters.maxPrice,
+            }}
+            onApplyFilters={applyFilterPanel}
+            committedSort={filters.sort}
+            onApplySort={applySortPanel}
+            onReset={clearFilters}
+            hasActiveFilters={hasActiveFilters}
+            categoryOptions={categoryOptions}
+            fuelTypeOptions={fuelTypeOptions}
+          />
+        )}
+
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
             <img src="/loader.svg" alt="Loading..." style={{ width: '80px', height: '80px' }} />
@@ -124,7 +231,7 @@ const InventoryPage = () => {
             <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: '16px', color: '#666', maxWidth: '600px', margin: '0 auto 24px auto', lineHeight: 1.6 }}>
               {error}
             </p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               style={{
                 background: '#1a2744',
@@ -141,14 +248,36 @@ const InventoryPage = () => {
               Try Again
             </button>
           </div>
+        ) : noVehiclesAtAll ? (
+          <div style={{ textAlign: 'center', marginTop: '80px', color: '#666', fontFamily: "'Manrope', sans-serif" }}>
+            <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#1a2744', margin: '0 0 8px' }}>No vehicles available yet</h3>
+            <p style={{ margin: 0 }}>No vehicles found in the database. Did you run the seed script?</p>
+          </div>
+        ) : noSearchResults ? (
+          <div style={{ textAlign: 'center', marginTop: '80px', fontFamily: "'Manrope', sans-serif" }}>
+            <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#1a2744', margin: '0 0 8px' }}>No vehicles matched your search</h3>
+            <p style={{ fontSize: '16px', color: '#666', margin: '0 0 24px' }}>Try adjusting your filters or searching for a different model.</p>
+            <button
+              onClick={clearFilters}
+              style={{
+                background: '#1a2744', color: '#fff', border: 'none',
+                padding: '12px 28px', borderRadius: '999px',
+                fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '15px', cursor: 'pointer',
+              }}
+            >
+              Reset Filters
+            </button>
+          </div>
         ) : (
           <motion.div
             layout
-            transition={{ layout: { duration: 0.35, ease: [0.4, 0, 0.2, 1] } }}
+            animate={{ opacity: searching ? 0.5 : 1 }}
+            transition={{ layout: { duration: 0.35, ease: [0.4, 0, 0.2, 1] }, opacity: { duration: 0.2 } }}
             style={{
               display: 'grid',
               gridTemplateColumns: viewMode === 'grid' ? 'repeat(4, 1fr)' : '1fr',
-              gap: '24px'
+              gap: '24px',
+              pointerEvents: searching ? 'none' : 'auto',
             }}
           >
             {vehicles.map((vehicle, index) => (
