@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PurchaseButton from './PurchaseButton';
 import DeleteVehicleButton from './DeleteVehicleButton';
@@ -9,6 +10,7 @@ import RestockModal from './RestockModal';
 const LAYOUT_TRANSITION = { duration: 0.35, ease: [0.4, 0, 0.2, 1] };
 
 const VehicleCard = ({ vehicle, viewMode, isAdmin, onPurchase, onDelete, onRestock }) => {
+  const navigate = useNavigate();
   const isGrid = viewMode === 'grid';
   
   // Format currency
@@ -39,7 +41,7 @@ const VehicleCard = ({ vehicle, viewMode, isAdmin, onPurchase, onDelete, onResto
       whileHover={{ y: -5, boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)' }}
       transition={{ layout: LAYOUT_TRANSITION, default: { duration: 0.2 } }}
       style={baseStyle}
-      onClick={() => alert(`Details for ${vehicle.make} ${vehicle.model} coming soon!`)}
+      onClick={() => navigate(`/inventory/${vehicle._id}`)}
     >
       {/* Image Section */}
       <motion.div

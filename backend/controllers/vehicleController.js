@@ -18,6 +18,35 @@ export const getVehicles = async (req, res) => {
   }
 };
 
+export const getVehicleById = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findById(req.params.id);
+
+    if (!vehicle) {
+      return res.status(404).json({
+        success: false,
+        error: 'Vehicle not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: vehicle
+    });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+    res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  }
+};
+
 export const searchVehicles = async (req, res) => {
   try {
     const { search, category, fuelType, minPrice, maxPrice, sortBy, order } = req.query;

@@ -1,12 +1,13 @@
 import express from 'express';
-import { getVehicles, searchVehicles, createVehicle, updateVehicle, deleteVehicle, purchaseVehicle, restockVehicle } from '../controllers/vehicleController.js';
+import { getVehicles, getVehicleById, searchVehicles, createVehicle, updateVehicle, deleteVehicle, purchaseVehicle, restockVehicle } from '../controllers/vehicleController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.get('/', protect, getVehicles);
-// Must stay before any future '/:id' route, or Express will match "search" as an id.
+// Must stay before '/:id', or Express will match "search" as an id.
 router.get('/search', protect, searchVehicles);
+router.get('/:id', protect, getVehicleById);
 // Both create and update deviate from requirements.md's literal "Authenticated
 // user" access — restricted to Admin only so the whole management surface
 // (add/update/delete/restock) is consistently admin-gated server-side, matching

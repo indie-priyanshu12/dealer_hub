@@ -18,6 +18,27 @@ const EMPTY_FORM = {
   featured: false,
 };
 
+const buildFormState = (vehicle) => {
+  if (!vehicle) return EMPTY_FORM;
+
+  return {
+    vehicleId: vehicle.vehicleId || '',
+    make: vehicle.make || '',
+    model: vehicle.model || '',
+    category: vehicle.category || '',
+    year: vehicle.year != null ? String(vehicle.year) : '',
+    price: vehicle.price != null ? String(vehicle.price) : '',
+    currency: vehicle.currency || '',
+    fuelType: vehicle.fuelType || '',
+    color: vehicle.color || '',
+    mileage: vehicle.mileage != null ? String(vehicle.mileage) : '',
+    stock: vehicle.stock != null ? String(vehicle.stock) : '',
+    image: vehicle.image || '',
+    description: vehicle.description || '',
+    featured: !!vehicle.featured,
+  };
+};
+
 const isNonEmptyNumber = (value) => value !== '' && Number.isFinite(Number(value));
 
 const buildPayload = (form) => {
@@ -52,6 +73,13 @@ const inputStyle = {
   fontFamily: "'Manrope', sans-serif",
 };
 
+const disabledInputStyle = {
+  ...inputStyle,
+  background: 'rgba(0,0,0,.04)',
+  color: '#64748B',
+  cursor: 'not-allowed',
+};
+
 const labelStyle = {
   display: 'block',
   fontSize: '12px',
@@ -67,9 +95,10 @@ const Field = ({ label, htmlFor, children }) => (
   </div>
 );
 
-const AddVehicleModal = ({ onCreated }) => {
+const VehicleFormModal = ({ vehicle, onSaved }) => {
+  const isEditMode = !!vehicle;
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState(() => buildFormState(vehicle));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -82,7 +111,7 @@ const AddVehicleModal = ({ onCreated }) => {
     isNonEmptyNumber(form.stock) && Number(form.stock) >= 0;
 
   const openModal = () => {
-    setForm(EMPTY_FORM);
+    setForm(buildFormState(vehicle));
     setError(null);
     setOpen(true);
   };
@@ -100,8 +129,10 @@ const AddVehicleModal = ({ onCreated }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/vehicles', {
-        method: 'POST',
+      const url = isEditMode ? `/api/vehicles/${vehicle._id}` : '/api/vehicles';
+      const method = isEditMode ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -119,14 +150,14 @@ const AddVehicleModal = ({ onCreated }) => {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(data.error || 'Unable to add this vehicle. Please try again.');
+        setError(data.error || `Unable to ${isEditMode ? 'save changes to' : 'add'} this vehicle. Please try again.`);
         return;
       }
 
-      onCreated(data.data);
+      onSaved(data.data);
       setOpen(false);
     } catch (err) {
-      setError('Unable to add this vehicle. Please try again.');
+      setError(`Unable to ${isEditMode ? 'save changes to' : 'add'} this vehicle. Please try again.`);
     } finally {
       setLoading(false);
     }
@@ -136,20 +167,35 @@ const AddVehicleModal = ({ onCreated }) => {
     <>
       <button
         onClick={openModal}
-        style={{
-          fontFamily: "'Manrope', sans-serif",
-          fontWeight: 700,
-          fontSize: '14px',
-          color: '#fff',
-          background: 'linear-gradient(135deg, #1a2744 0%, #2d4a8f 100%)',
-          border: 'none',
-          borderRadius: '999px',
-          padding: '10px 22px',
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-        }}
+        style={
+          isEditMode
+            ? {
+                fontFamily: "'Manrope', sans-serif",
+                fontWeight: 700,
+                fontSize: '13px',
+                color: '#1a2744',
+                background: 'rgba(26, 39, 68, 0.06)',
+                border: '1px solid rgba(26, 39, 68, 0.18)',
+                borderRadius: '999px',
+                padding: '8px 18px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }
+            : {
+                fontFamily: "'Manrope', sans-serif",
+                fontWeight: 700,
+                fontSize: '14px',
+                color: '#fff',
+                background: 'linear-gradient(135deg, #1a2744 0%, #2d4a8f 100%)',
+                border: 'none',
+                borderRadius: '999px',
+                padding: '10px 22px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }
+        }
       >
-        + Add Vehicle
+        {isEditMode ? 'Edit' : '+ Add Vehicle'}
       </button>
 
       {open && createPortal(
@@ -184,12 +230,19 @@ const AddVehicleModal = ({ onCreated }) => {
             }}
           >
             <h3 style={{ margin: '0 0 20px', fontSize: '22px', fontWeight: 800, color: '#1a2744' }}>
-              Add Vehicle
+              {isEditMode ? `Edit ${vehicle.make} ${vehicle.model}` : 'Add Vehicle'}
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
               <Field label="Vehicle ID" htmlFor="vehicleId">
-                <input id="vehicleId" name="vehicleId" style={inputStyle} value={form.vehicleId} onChange={handleChange} />
+                <input
+                  id="vehicleId"
+                  name="vehicleId"
+                  style={isEditMode ? disabledInputStyle : inputStyle}
+                  value={form.vehicleId}
+                  onChange={handleChange}
+                  disabled={isEditMode}
+                />
               </Field>
               <Field label="Category" htmlFor="category">
                 <input id="category" name="category" style={inputStyle} value={form.category} onChange={handleChange} />
@@ -282,7 +335,9 @@ const AddVehicleModal = ({ onCreated }) => {
                   cursor: !isFormValid || loading ? 'not-allowed' : 'pointer',
                 }}
               >
-                {loading ? 'Adding…' : 'Add Vehicle'}
+                {loading
+                  ? (isEditMode ? 'Saving…' : 'Adding…')
+                  : (isEditMode ? 'Save Changes' : 'Add Vehicle')}
               </button>
             </div>
           </div>
@@ -293,4 +348,4 @@ const AddVehicleModal = ({ onCreated }) => {
   );
 };
 
-export default AddVehicleModal;
+export default VehicleFormModal;

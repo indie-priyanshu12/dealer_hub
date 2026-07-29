@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import VehicleCard from './VehicleCard';
 
 const baseVehicle = {
@@ -16,11 +17,24 @@ const baseVehicle = {
 
 const noop = () => {};
 
+const renderCard = (props) =>
+  render(
+    <MemoryRouter initialEntries={['/inventory']}>
+      <Routes>
+        <Route
+          path="/inventory"
+          element={
+            <VehicleCard vehicle={baseVehicle} viewMode="grid" onPurchase={noop} onDelete={noop} onRestock={noop} {...props} />
+          }
+        />
+        <Route path="/inventory/:id" element={<div>vehicle details page</div>} />
+      </Routes>
+    </MemoryRouter>
+  );
+
 describe('VehicleCard', () => {
   it('shows Purchase but not Delete/Restock for a non-admin viewer', () => {
-    render(
-      <VehicleCard vehicle={baseVehicle} viewMode="grid" isAdmin={false} onPurchase={noop} onDelete={noop} onRestock={noop} />
-    );
+    renderCard({ isAdmin: false });
 
     expect(screen.getByRole('button', { name: /purchase/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^delete$/i })).not.toBeInTheDocument();
@@ -28,12 +42,26 @@ describe('VehicleCard', () => {
   });
 
   it('shows Delete/Restock but not Purchase for an admin viewer', () => {
-    render(
-      <VehicleCard vehicle={baseVehicle} viewMode="grid" isAdmin={true} onPurchase={noop} onDelete={noop} onRestock={noop} />
-    );
+    renderCard({ isAdmin: true });
 
     expect(screen.getByRole('button', { name: /^delete$/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^restock$/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /purchase/i })).not.toBeInTheDocument();
+  });
+
+  it('navigates to the vehicle details page when the card is clicked', () => {
+    renderCard({ isAdmin: false });
+
+    fireEvent.click(screen.getByRole('heading', { name: 'BMW M4' }));
+
+    expect(screen.getByText('vehicle details page')).toBeInTheDocument();
+  });
+
+  it('navigates to the vehicle details page when "View Details" is clicked', () => {
+    renderCard({ isAdmin: false });
+
+    fireEvent.click(screen.getByRole('button', { name: /view details/i }));
+
+    expect(screen.getByText('vehicle details page')).toBeInTheDocument();
   });
 });

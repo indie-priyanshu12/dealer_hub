@@ -3,7 +3,7 @@ import DashboardLayout from '../components/Dashboard/DashboardLayout';
 import VehicleCard from '../components/Inventory/VehicleCard';
 import ViewToggle from '../components/Inventory/ViewToggle';
 import SearchFilterBar from '../components/Inventory/SearchFilterBar';
-import AddVehicleModal from '../components/Inventory/AddVehicleModal';
+import VehicleFormModal from '../components/Inventory/VehicleFormModal';
 import { motion } from 'framer-motion';
 
 const getStoredUser = () => {
@@ -200,7 +200,7 @@ const InventoryPage = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {isAdmin && <AddVehicleModal onCreated={handleVehicleCreated} />}
+            {isAdmin && <VehicleFormModal onSaved={handleVehicleCreated} />}
             <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
           </div>
         </div>

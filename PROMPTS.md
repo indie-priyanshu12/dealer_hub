@@ -58,3 +58,6 @@ Asked Claude to build the Add Vehicle form, the last unbuilt piece of admin mana
 
 ## Session 17:
 Asked Claude to polish role-based UI per requirements — hide Purchase from admins, keep the landing page reachable only pre-login/post-logout, and replace the post-login navbar with a left sidebar (per an earlier decision), plus flagged wanting a "view more" experience on vehicle cards. Claude split this into ordered units per CLAUDE.md's break-it-down rule, built each test-first, and explicitly deferred the vehicle-details request (the largest piece) rather than rushing it in, since it also depends on Edit — still unbuilt — and needs its own scoping conversation.
+
+## Session 18:
+Asked Claude to build the Vehicle Details page including Edit, the last piece from an earlier scoping conversation. Claude added the missing GET /:id endpoint first (flagging that it's not in requirements.md's literal table but necessary for a deep-linkable page), refactored AddVehicleModal into a shared VehicleFormModal rather than duplicating the form for Edit, then built the details page reusing every existing admin/purchase component. Also re-diagnosed and fixed the "backend needs a restart after route changes" issue immediately this time, having learned the pattern from an earlier, harder investigation.
