@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import MagneticButton from '../MagneticButton';
+
+// Lets the click's reward animation (scale pulse / arrow launch) play out before the
+// route actually swaps, so navigating never feels like an instant, jarring cut.
+const LAUNCH_DELAY = 260;
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -13,6 +20,7 @@ const NAV_LINKS = [
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [launching, setLaunching] = useState(null); // null | 'login' | 'join' | 'mobile'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +28,12 @@ const Navbar = () => {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  const handleCTAClick = (key) => {
+    setLaunching(key);
+    setMenuOpen(false);
+    setTimeout(() => navigate('/auth'), LAUNCH_DELAY);
+  };
 
   return (
     <>
@@ -102,36 +116,40 @@ const Navbar = () => {
 
         {/* ── Login Button ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button
-            onClick={() => navigate('/auth')}
+          <MagneticButton
+            onClick={() => handleCTAClick('login')}
+            animate={{
+              scale: launching === 'login' ? [1, 1.06, 1] : 1,
+              backgroundColor: launching === 'login' ? '#1a2744' : 'rgba(26,39,68,0)',
+              color: launching === 'login' ? '#ffffff' : '#1a2744',
+              borderColor: launching === 'login' ? '#1a2744' : 'rgba(26,39,68,0.25)',
+            }}
+            whileHover={{ backgroundColor: '#1a2744', color: '#ffffff', borderColor: '#1a2744' }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             style={{
               fontFamily: "'Manrope', sans-serif",
               fontWeight: 600,
               fontSize: '14px',
-              color: '#1a2744',
-              background: 'transparent',
-              border: '1.5px solid rgba(26,39,68,0.25)',
+              borderWidth: '1.5px',
+              borderStyle: 'solid',
               borderRadius: '10px',
               padding: '8px 20px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = '#1a2744';
-              e.currentTarget.style.color = '#fff';
-              e.currentTarget.style.borderColor = '#1a2744';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = '#1a2744';
-              e.currentTarget.style.borderColor = 'rgba(26,39,68,0.25)';
             }}
           >
             Login
-          </button>
+          </MagneticButton>
 
-          <button
-            onClick={() => navigate('/auth')}
+          <MagneticButton
+            onClick={() => handleCTAClick('join')}
+            animate={{
+              scale: launching === 'join' ? [1, 1.06, 1] : 1,
+              boxShadow: launching === 'join'
+                ? '0 10px 28px rgba(26,39,68,0.45)'
+                : '0 4px 12px rgba(26,39,68,0.25)',
+            }}
+            whileHover={{ boxShadow: '0 6px 18px rgba(26,39,68,0.35)' }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             style={{
               fontFamily: "'Manrope', sans-serif",
               fontWeight: 600,
@@ -142,20 +160,20 @@ const Navbar = () => {
               borderRadius: '10px',
               padding: '9px 22px',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(26,39,68,0.25)',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = '0 6px 18px rgba(26,39,68,0.35)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,39,68,0.25)';
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
             }}
           >
-            Join Free →
-          </button>
+            Join Free
+            <motion.span
+              animate={{ x: launching === 'join' ? 14 : 0, opacity: launching === 'join' ? 0 : 1 }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              style={{ display: 'inline-flex' }}
+            >
+              <ArrowRight size={15} />
+            </motion.span>
+          </MagneticButton>
 
           {/* Mobile hamburger */}
           <button
@@ -216,8 +234,10 @@ const Navbar = () => {
             </Link>
           ))}
           <div style={{ height: '1px', width: '60px', background: 'rgba(0,0,0,0.1)', margin: '8px 0' }} />
-          <button
-            onClick={() => { navigate('/auth'); setMenuOpen(false); }}
+          <MagneticButton
+            onClick={() => handleCTAClick('mobile')}
+            animate={{ scale: launching === 'mobile' ? [1, 1.06, 1] : 1 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             style={{
               fontFamily: "'Manrope', sans-serif",
               fontWeight: 700,
@@ -231,7 +251,7 @@ const Navbar = () => {
             }}
           >
             Login / Join Free
-          </button>
+          </MagneticButton>
         </div>
       )}
 
