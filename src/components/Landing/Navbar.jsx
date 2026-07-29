@@ -20,7 +20,8 @@ const NAV_LINKS = [
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [launching, setLaunching] = useState(null); // null | 'login' | 'join' | 'mobile'
+  const [launching, setLaunching] = useState(null); // null | 'login' | 'join' | 'mobile' | 'logout'
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,10 +30,25 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('token'));
+  }, []);
+
   const handleCTAClick = (key) => {
     setLaunching(key);
     setMenuOpen(false);
     setTimeout(() => navigate('/auth'), LAUNCH_DELAY);
+  };
+
+  const handleLogout = () => {
+    setLaunching('logout');
+    setMenuOpen(false);
+    setTimeout(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setIsLoggedIn(false);
+      navigate('/');
+    }, LAUNCH_DELAY);
   };
 
   return (
@@ -114,66 +130,94 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* ── Login Button ── */}
+        {/* ── Action Buttons ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <MagneticButton
-            onClick={() => handleCTAClick('login')}
-            animate={{
-              scale: launching === 'login' ? [1, 1.06, 1] : 1,
-              backgroundColor: launching === 'login' ? '#1a2744' : 'rgba(26,39,68,0)',
-              color: launching === 'login' ? '#ffffff' : '#1a2744',
-              borderColor: launching === 'login' ? '#1a2744' : 'rgba(26,39,68,0.25)',
-            }}
-            whileHover={{ backgroundColor: '#1a2744', color: '#ffffff', borderColor: '#1a2744' }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontWeight: 600,
-              fontSize: '14px',
-              borderWidth: '1.5px',
-              borderStyle: 'solid',
-              borderRadius: '10px',
-              padding: '8px 20px',
-              cursor: 'pointer',
-            }}
-          >
-            Login
-          </MagneticButton>
-
-          <MagneticButton
-            onClick={() => handleCTAClick('join')}
-            animate={{
-              scale: launching === 'join' ? [1, 1.06, 1] : 1,
-              boxShadow: launching === 'join'
-                ? '0 10px 28px rgba(26,39,68,0.45)'
-                : '0 4px 12px rgba(26,39,68,0.25)',
-            }}
-            whileHover={{ boxShadow: '0 6px 18px rgba(26,39,68,0.35)' }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontWeight: 600,
-              fontSize: '14px',
-              color: '#fff',
-              background: 'linear-gradient(135deg, #1a2744 0%, #2d4a8f 100%)',
-              border: 'none',
-              borderRadius: '10px',
-              padding: '9px 22px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            Join Free
-            <motion.span
-              animate={{ x: launching === 'join' ? 14 : 0, opacity: launching === 'join' ? 0 : 1 }}
+          {isLoggedIn ? (
+            <MagneticButton
+              onClick={handleLogout}
+              animate={{
+                scale: launching === 'logout' ? [1, 1.06, 1] : 1,
+                backgroundColor: launching === 'logout' ? '#EF4444' : 'rgba(26,39,68,0)',
+                color: launching === 'logout' ? '#ffffff' : '#1a2744',
+                borderColor: launching === 'logout' ? '#EF4444' : 'rgba(26,39,68,0.25)',
+              }}
+              whileHover={{ backgroundColor: '#EF4444', color: '#ffffff', borderColor: '#EF4444' }}
               transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-              style={{ display: 'inline-flex' }}
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontWeight: 600,
+                fontSize: '14px',
+                borderWidth: '1.5px',
+                borderStyle: 'solid',
+                borderRadius: '10px',
+                padding: '8px 20px',
+                cursor: 'pointer',
+              }}
             >
-              <ArrowRight size={15} />
-            </motion.span>
-          </MagneticButton>
+              Logout
+            </MagneticButton>
+          ) : (
+            <>
+              <MagneticButton
+                onClick={() => handleCTAClick('login')}
+                animate={{
+                  scale: launching === 'login' ? [1, 1.06, 1] : 1,
+                  backgroundColor: launching === 'login' ? '#1a2744' : 'rgba(26,39,68,0)',
+                  color: launching === 'login' ? '#ffffff' : '#1a2744',
+                  borderColor: launching === 'login' ? '#1a2744' : 'rgba(26,39,68,0.25)',
+                }}
+                whileHover={{ backgroundColor: '#1a2744', color: '#ffffff', borderColor: '#1a2744' }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  borderWidth: '1.5px',
+                  borderStyle: 'solid',
+                  borderRadius: '10px',
+                  padding: '8px 20px',
+                  cursor: 'pointer',
+                }}
+              >
+                Login
+              </MagneticButton>
+
+              <MagneticButton
+                onClick={() => handleCTAClick('join')}
+                animate={{
+                  scale: launching === 'join' ? [1, 1.06, 1] : 1,
+                  boxShadow: launching === 'join'
+                    ? '0 10px 28px rgba(26,39,68,0.45)'
+                    : '0 4px 12px rgba(26,39,68,0.25)',
+                }}
+                whileHover={{ boxShadow: '0 6px 18px rgba(26,39,68,0.35)' }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  color: '#fff',
+                  background: 'linear-gradient(135deg, #1a2744 0%, #2d4a8f 100%)',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '9px 22px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                Join Free
+                <motion.span
+                  animate={{ x: launching === 'join' ? 14 : 0, opacity: launching === 'join' ? 0 : 1 }}
+                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ display: 'inline-flex' }}
+                >
+                  <ArrowRight size={15} />
+                </motion.span>
+              </MagneticButton>
+            </>
+          )}
 
           {/* Mobile hamburger */}
           <button
@@ -234,24 +278,45 @@ const Navbar = () => {
             </Link>
           ))}
           <div style={{ height: '1px', width: '60px', background: 'rgba(0,0,0,0.1)', margin: '8px 0' }} />
-          <MagneticButton
-            onClick={() => handleCTAClick('mobile')}
-            animate={{ scale: launching === 'mobile' ? [1, 1.06, 1] : 1 }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontWeight: 700,
-              fontSize: '18px',
-              color: '#fff',
-              background: 'linear-gradient(135deg, #1a2744 0%, #2d4a8f 100%)',
-              border: 'none',
-              borderRadius: '14px',
-              padding: '14px 40px',
-              cursor: 'pointer',
-            }}
-          >
-            Login / Join Free
-          </MagneticButton>
+          {isLoggedIn ? (
+            <MagneticButton
+              onClick={handleLogout}
+              animate={{ scale: launching === 'logout' ? [1, 1.06, 1] : 1 }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontWeight: 700,
+                fontSize: '18px',
+                color: '#fff',
+                background: '#EF4444',
+                border: 'none',
+                borderRadius: '14px',
+                padding: '14px 40px',
+                cursor: 'pointer',
+              }}
+            >
+              Logout
+            </MagneticButton>
+          ) : (
+            <MagneticButton
+              onClick={() => handleCTAClick('mobile')}
+              animate={{ scale: launching === 'mobile' ? [1, 1.06, 1] : 1 }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontWeight: 700,
+                fontSize: '18px',
+                color: '#fff',
+                background: 'linear-gradient(135deg, #1a2744 0%, #2d4a8f 100%)',
+                border: 'none',
+                borderRadius: '14px',
+                padding: '14px 40px',
+                cursor: 'pointer',
+              }}
+            >
+              Login / Join Free
+            </MagneticButton>
+          )}
         </div>
       )}
 

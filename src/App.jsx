@@ -4,6 +4,7 @@ import LandingPage from './pages/LandingPage';
 import Auth from './components/Auth';
 import InventoryPage from './pages/InventoryPage';
 import CustomScrollbar from './components/CustomScrollbar';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function App() {
@@ -14,7 +15,14 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/inventory" element={<InventoryPage />} />
+          <Route 
+            path="/inventory" 
+            element={
+              <ProtectedRoute>
+                <InventoryPage />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </div>
     </Router>

@@ -1,9 +1,9 @@
 import express from 'express';
 import { getVehicles } from '../controllers/vehicleController.js';
-// Protect middleware will be added later per requirements
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', getVehicles);
+router.get('/', protect, getVehicles);
 
 export default router;

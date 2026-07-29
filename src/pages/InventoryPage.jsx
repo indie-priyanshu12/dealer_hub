@@ -4,17 +4,38 @@ import VehicleCard from '../components/Inventory/VehicleCard';
 import ViewToggle from '../components/Inventory/ViewToggle';
 import { motion } from 'framer-motion';
 
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user'));
+  } catch {
+    return null;
+  }
+};
+
 const InventoryPage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+  const [user] = useState(getStoredUser);
 
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch('/api/vehicles');
-        
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/vehicles', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/auth';
+          return;
+        }
+
         if (!response.ok) {
           throw new Error(`Server returned a ${response.status} status. The backend API might be down or missing this route.`);
         }
@@ -64,7 +85,7 @@ const InventoryPage = () => {
               letterSpacing: '-1px',
               margin: '0 0 8px 0'
             }}>
-              Inventory
+              {user ? `Welcome back, ${user.email}` : 'Inventory'}
             </h1>
             <p style={{
               fontFamily: "'Manrope', sans-serif",
@@ -72,7 +93,7 @@ const InventoryPage = () => {
               color: '#666',
               margin: 0
             }}>
-              Explore our premium collection of exceptional vehicles.
+              {user ? "Here's your dealership dashboard — browse and manage the current inventory." : 'Explore our premium collection of exceptional vehicles.'}
             </p>
           </div>
 

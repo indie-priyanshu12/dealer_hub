@@ -190,7 +190,7 @@ const Auth = () => {
         ? { email: formData.email, password: formData.password }
         : { email: formData.email, password: formData.password, role: formData.role };
 
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -208,7 +208,8 @@ const Auth = () => {
       setTimeout(() => {
         if (isLogin) {
           localStorage.setItem('token', data.token);
-          window.location.href = '/'; // Simple redirect for now
+          localStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = '/inventory';
         } else {
           setIsLogin(true);
           setIsSuccess(false);
