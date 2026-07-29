@@ -223,7 +223,9 @@ const VehicleCard = ({ vehicle, viewMode, isAdmin, onPurchase, onDelete, onResto
                 onDeleted={onDelete}
               />
             )}
-            <PurchaseButton vehicleId={vehicle._id} stock={vehicle.stock} onPurchase={onPurchase} />
+            {!isAdmin && (
+              <PurchaseButton vehicleId={vehicle._id} stock={vehicle.stock} onPurchase={onPurchase} />
+            )}
           </div>
         </div>
       </motion.div>

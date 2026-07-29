@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Navbar from '../components/Landing/Navbar';
+import DashboardLayout from '../components/Dashboard/DashboardLayout';
 import VehicleCard from '../components/Inventory/VehicleCard';
 import ViewToggle from '../components/Inventory/ViewToggle';
 import SearchFilterBar from '../components/Inventory/SearchFilterBar';
@@ -175,10 +175,8 @@ const InventoryPage = () => {
   const noSearchResults = !loading && !error && vehicles.length === 0 && hasActiveFilters;
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F8F8F6', paddingBottom: '100px' }}>
-      <Navbar />
-
-      <main style={{ paddingTop: '76px', maxWidth: '1400px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
+    <DashboardLayout>
+      <main style={{ paddingTop: '48px', paddingBottom: '100px', maxWidth: '1400px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
           <div>
             <h1 style={{
@@ -325,7 +323,7 @@ const InventoryPage = () => {
           </motion.div>
         )}
       </main>
-    </div>
+    </DashboardLayout>
   );
 };
 
