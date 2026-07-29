@@ -3,13 +3,16 @@ import cors from 'cors';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes.js';
 import vehicleRoutes from './routes/vehicleRoutes.js';
+import { normalizeOrigin } from './utils/normalizeOrigin.js';
 
 const app = express();
 
 // Locked to the deployed frontend's origin once CLIENT_URL is set (e.g. on
 // Render); left wide open otherwise so local dev and the test suite are
-// unaffected.
-app.use(cors(process.env.CLIENT_URL ? { origin: process.env.CLIENT_URL } : undefined));
+// unaffected. normalizeOrigin repairs the two most common ways a hand-typed
+// dashboard env var goes wrong (missing scheme, trailing slash).
+const clientOrigin = normalizeOrigin(process.env.CLIENT_URL);
+app.use(cors(clientOrigin ? { origin: clientOrigin } : undefined));
 app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
