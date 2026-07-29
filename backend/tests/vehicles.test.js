@@ -71,11 +71,82 @@ describe('Vehicle API Endpoints', () => {
     const res = await request(app)
       .get('/api/vehicles')
       .set('Authorization', `Bearer ${token}`);
-    
+
     expect(res.statusCode).toEqual(200);
     expect(res.body.success).toBeTruthy();
     expect(res.body.data.length).toBe(2);
     const makes = res.body.data.map(v => v.make);
     expect(makes).toContain('BMW');
+  });
+});
+
+describe('POST /api/vehicles', () => {
+  const newVehicle = {
+    vehicleId: 'CAR003',
+    make: 'Audi',
+    model: 'A4',
+    year: 2024,
+    price: 4500000,
+    category: 'Sedan',
+    fuelType: 'Petrol',
+    stock: 3,
+  };
+
+  const getAuthToken = async () => {
+    const user = await User.create({
+      email: 'creator@example.com',
+      password: 'password123',
+      role: 'User',
+    });
+    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'test_secret_key', {
+      expiresIn: '30d',
+    });
+  };
+
+  it('should return 401 if not authorized', async () => {
+    const res = await request(app).post('/api/vehicles').send(newVehicle);
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it('should create a new vehicle for an authenticated user', async () => {
+    const token = await getAuthToken();
+
+    const res = await request(app)
+      .post('/api/vehicles')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newVehicle);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body.success).toBeTruthy();
+    expect(res.body.data.vehicleId).toBe('CAR003');
+    expect(res.body.data.make).toBe('Audi');
+
+    const inDb = await Vehicle.findOne({ vehicleId: 'CAR003' });
+    expect(inDb).not.toBeNull();
+    expect(inDb.stock).toBe(3);
+  });
+
+  it('should reject a vehicle missing required fields', async () => {
+    const token = await getAuthToken();
+
+    const res = await request(app)
+      .post('/api/vehicles')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ make: 'Audi' });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.success).toBeFalsy();
+  });
+
+  it('should reject a duplicate vehicleId', async () => {
+    const token = await getAuthToken();
+
+    const res = await request(app)
+      .post('/api/vehicles')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ ...newVehicle, vehicleId: 'CAR001' }); // seeded in beforeEach
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.success).toBeFalsy();
   });
 });

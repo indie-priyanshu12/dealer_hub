@@ -15,3 +15,26 @@ export const getVehicles = async (req, res) => {
     });
   }
 };
+
+export const createVehicle = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.create(req.body);
+    res.status(201).json({
+      success: true,
+      data: vehicle
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError' || error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: error.code === 11000
+          ? 'A vehicle with this ID already exists'
+          : error.message
+      });
+    }
+    res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  }
+};
