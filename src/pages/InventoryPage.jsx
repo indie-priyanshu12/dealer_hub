@@ -52,6 +52,10 @@ const InventoryPage = () => {
     setFilters(DEFAULT_FILTERS);
   };
 
+  const handleVehiclePurchased = (updatedVehicle) => {
+    setVehicles((prev) => prev.map((v) => (v._id === updatedVehicle._id ? updatedVehicle : v)));
+  };
+
   useEffect(() => {
     const controller = new AbortController();
     const isInitial = isFirstLoad.current;
@@ -292,7 +296,7 @@ const InventoryPage = () => {
                   layout: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
                 }}
               >
-                <VehicleCard vehicle={vehicle} viewMode={viewMode} />
+                <VehicleCard vehicle={vehicle} viewMode={viewMode} onPurchase={handleVehiclePurchased} />
               </motion.div>
             ))}
           </motion.div>

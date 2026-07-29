@@ -1,11 +1,12 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PurchaseButton from './PurchaseButton';
 
 // Shared easing for every layout (FLIP) transition in this card, so the image, content
 // block, and outer slot all settle in lockstep instead of drifting at different rates.
 const LAYOUT_TRANSITION = { duration: 0.35, ease: [0.4, 0, 0.2, 1] };
 
-const VehicleCard = ({ vehicle, viewMode }) => {
+const VehicleCard = ({ vehicle, viewMode, onPurchase }) => {
   const isGrid = viewMode === 'grid';
   
   // Format currency
@@ -170,37 +171,41 @@ const VehicleCard = ({ vehicle, viewMode }) => {
           </AnimatePresence>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: isGrid ? '20px' : '0' }}>
-          <span style={{
-            color: vehicle.stock > 0 ? '#2ea043' : '#da3633',
-            fontSize: '14px',
-            fontWeight: 700,
-            fontFamily: "'Manrope', sans-serif",
-            background: vehicle.stock > 0 ? 'rgba(46, 160, 67, 0.1)' : 'rgba(218, 54, 51, 0.1)',
-            padding: '4px 12px',
-            borderRadius: '12px'
-          }}>
-            {vehicle.stock > 0 ? `${vehicle.stock} In Stock` : 'Out of Stock'}
-          </span>
-          
-          <button style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#1a2744',
-            fontWeight: 700,
-            fontSize: '14px',
-            fontFamily: "'Manrope', sans-serif",
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            View Details 
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: isGrid ? '20px' : '0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{
+              color: vehicle.stock > 0 ? '#2ea043' : '#da3633',
+              fontSize: '14px',
+              fontWeight: 700,
+              fontFamily: "'Manrope', sans-serif",
+              background: vehicle.stock > 0 ? 'rgba(46, 160, 67, 0.1)' : 'rgba(218, 54, 51, 0.1)',
+              padding: '4px 12px',
+              borderRadius: '12px'
+            }}>
+              {vehicle.stock > 0 ? `${vehicle.stock} In Stock` : 'Out of Stock'}
+            </span>
+
+            <button style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#1a2744',
+              fontWeight: 700,
+              fontSize: '14px',
+              fontFamily: "'Manrope', sans-serif",
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              View Details
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <PurchaseButton vehicleId={vehicle._id} stock={vehicle.stock} onPurchase={onPurchase} />
         </div>
       </motion.div>
     </motion.div>
