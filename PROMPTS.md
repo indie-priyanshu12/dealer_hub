@@ -40,3 +40,6 @@ Asked Claude to write detailed, long-form descriptions for all 20 seed vehicles,
 
 ## Session   :
 Asked Claude to implement POST /api/vehicles/:id/purchase test-first, per the backend build order agreed on earlier. Claude wrote 4 Supertest cases first (401, successful decrement by a non-admin user, rejection at zero stock with a DB-state check, 404), confirmed they failed for the right reasons (one test coincidentally "passed" only because no route existed yet — Claude called this out rather than treating it as a real green), then added the minimal controller and route to pass them. Flagged the no-quantity-param design choice explicitly rather than deciding it silently.
+
+## Session   :
+Asked Claude to implement POST /api/vehicles/:id/restock test-first, the last endpoint in the backend build order. Claude wrote 5 Supertest cases first (401, 403 with a DB-unchanged check, successful quantity-based increment, invalid-quantity rejection covering both zero and missing values, and 404), confirmed them Red, then added the minimal admin-gated controller and route. Flagged that restock accepting a quantity (vs. purchase's fixed -1) is a deliberate asymmetry worth reviewing.
