@@ -1,13 +1,16 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { CompareProvider } from '../../context/CompareContext';
 import Sidebar from './Sidebar';
 
 const renderAt = (path) =>
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <Sidebar />
-    </MemoryRouter>
+    <CompareProvider>
+      <MemoryRouter initialEntries={[path]}>
+        <Sidebar />
+      </MemoryRouter>
+    </CompareProvider>
   );
 
 describe('Sidebar', () => {
@@ -38,5 +41,20 @@ describe('Sidebar', () => {
 
     expect(localStorage.getItem('token')).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
+  });
+
+  it('renders a Compare nav item with no count badge when nothing is selected', () => {
+    renderAt('/inventory');
+
+    expect(screen.getByRole('link', { name: /^compare$/i })).toBeInTheDocument();
+    expect(screen.queryByText(/^[1-3]$/)).not.toBeInTheDocument();
+  });
+
+  it('shows the current compare count as a badge on the Compare nav item', () => {
+    localStorage.setItem('compareVehicleIds', JSON.stringify(['a', 'b']));
+    renderAt('/inventory');
+
+    const compareLink = screen.getByRole('link', { name: /compare/i });
+    expect(compareLink).toHaveTextContent('2');
   });
 });

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PurchaseButton from './PurchaseButton';
 import DeleteVehicleButton from './DeleteVehicleButton';
 import RestockModal from './RestockModal';
+import CompareButton from './CompareButton';
 
 // Shared easing for every layout (FLIP) transition in this card, so the image, content
 // block, and outer slot all settle in lockstep instead of drifting at different rates.
@@ -210,6 +211,7 @@ const VehicleCard = ({ vehicle, viewMode, isAdmin, onPurchase, onDelete, onResto
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', gap: '10px' }}>
+            <CompareButton vehicleId={vehicle._id} />
             {isAdmin && (
               <RestockModal
                 vehicleId={vehicle._id}

@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { CompareProvider } from '../../context/CompareContext';
 import VehicleCard from './VehicleCard';
 
 const baseVehicle = {
@@ -19,20 +20,27 @@ const noop = () => {};
 
 const renderCard = (props) =>
   render(
-    <MemoryRouter initialEntries={['/inventory']}>
-      <Routes>
-        <Route
-          path="/inventory"
-          element={
-            <VehicleCard vehicle={baseVehicle} viewMode="grid" onPurchase={noop} onDelete={noop} onRestock={noop} {...props} />
-          }
-        />
-        <Route path="/inventory/:id" element={<div>vehicle details page</div>} />
-      </Routes>
-    </MemoryRouter>
+    <CompareProvider>
+      <MemoryRouter initialEntries={['/inventory']}>
+        <Routes>
+          <Route
+            path="/inventory"
+            element={
+              <VehicleCard vehicle={baseVehicle} viewMode="grid" onPurchase={noop} onDelete={noop} onRestock={noop} {...props} />
+            }
+          />
+          <Route path="/inventory/:id" element={<div>vehicle details page</div>} />
+        </Routes>
+      </MemoryRouter>
+    </CompareProvider>
   );
 
 describe('VehicleCard', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+
   it('shows Purchase but not Delete/Restock for a non-admin viewer', () => {
     renderCard({ isAdmin: false });
 
@@ -63,5 +71,13 @@ describe('VehicleCard', () => {
     fireEvent.click(screen.getByRole('button', { name: /view details/i }));
 
     expect(screen.getByText('vehicle details page')).toBeInTheDocument();
+  });
+
+  it('shows the Compare button for both non-admin and admin viewers', () => {
+    renderCard({ isAdmin: false });
+    expect(screen.getByRole('button', { name: /compare \(0\/3\)/i })).toBeInTheDocument();
+
+    renderCard({ isAdmin: true });
+    expect(screen.getAllByRole('button', { name: /compare \(0\/3\)/i }).length).toBeGreaterThan(0);
   });
 });

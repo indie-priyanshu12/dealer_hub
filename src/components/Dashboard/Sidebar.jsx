@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutGrid, LogOut } from 'lucide-react';
+import { LayoutGrid, GitCompare, LogOut } from 'lucide-react';
+import { useCompare } from '../../context/CompareContext';
 
 export const SIDEBAR_WIDTH = 240;
 export const SIDEBAR_WIDTH_COLLAPSED = 84;
@@ -9,6 +10,7 @@ export const SIDEBAR_WIDTH_COLLAPSED = 84;
 // (Overview/Search/Analytics/etc. from the original dashboard sketch are still deferred).
 const NAV_ITEMS = [
   { label: 'Inventory', href: '/inventory', icon: LayoutGrid },
+  { label: 'Compare', href: '/compare', icon: GitCompare },
 ];
 
 const isItemActive = (pathname, href) => pathname === href || pathname.startsWith(`${href}/`);
@@ -31,6 +33,7 @@ const linkStyle = (active) => ({
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { compareIds } = useCompare();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -71,9 +74,33 @@ const Sidebar = () => {
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
           {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
             const active = isItemActive(location.pathname, href);
+            const badgeCount = label === 'Compare' ? compareIds.length : 0;
             return (
               <Link key={href} to={href} aria-current={active ? 'page' : undefined} style={linkStyle(active)}>
-                <Icon size={20} strokeWidth={2} style={{ flexShrink: 0 }} />
+                <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }}>
+                  <Icon size={20} strokeWidth={2} />
+                  {badgeCount > 0 && (
+                    <span style={{
+                      position: 'absolute',
+                      top: '-6px',
+                      right: '-6px',
+                      background: '#EF4444',
+                      color: '#fff',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      borderRadius: '999px',
+                      minWidth: '16px',
+                      height: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 3px',
+                      lineHeight: 1,
+                    }}>
+                      {badgeCount}
+                    </span>
+                  )}
+                </span>
                 <span className="dh-sidebar-label">{label}</span>
               </Link>
             );
