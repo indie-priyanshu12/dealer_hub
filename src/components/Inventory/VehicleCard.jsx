@@ -1,5 +1,9 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Shared easing for every layout (FLIP) transition in this card, so the image, content
+// block, and outer slot all settle in lockstep instead of drifting at different rates.
+const LAYOUT_TRANSITION = { duration: 0.35, ease: [0.4, 0, 0.2, 1] };
 
 const VehicleCard = ({ vehicle, viewMode }) => {
   const isGrid = viewMode === 'grid';
@@ -24,23 +28,27 @@ const VehicleCard = ({ vehicle, viewMode }) => {
     display: 'flex',
     flexDirection: isGrid ? 'column' : 'row',
     height: isGrid ? '100%' : '280px',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 
   return (
     <motion.div
+      layout
       whileHover={{ y: -5, boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)' }}
+      transition={{ layout: LAYOUT_TRANSITION, default: { duration: 0.2 } }}
       style={baseStyle}
       onClick={() => alert(`Details for ${vehicle.make} ${vehicle.model} coming soon!`)}
     >
       {/* Image Section */}
-      <div style={{
-        width: isGrid ? '100%' : '40%',
-        height: isGrid ? '220px' : '100%',
-        background: '#ececeb', // placeholder color
-        position: 'relative',
-        flexShrink: 0,
-      }}>
+      <motion.div
+        layout
+        transition={LAYOUT_TRANSITION}
+        style={{
+          width: isGrid ? '100%' : '40%',
+          height: isGrid ? '220px' : '100%',
+          background: '#ececeb', // placeholder color
+          position: 'relative',
+          flexShrink: 0,
+        }}>
         <div style={{
           position: 'absolute',
           inset: 0,
@@ -54,24 +62,26 @@ const VehicleCard = ({ vehicle, viewMode }) => {
           {vehicle.make} {vehicle.model}
         </div>
         
-        {/* Attempt to load the image, it will lay on top of the placeholder text if successful */}
-        <img 
-          src={`/inventory_data/car_images/${vehicle.model.toLowerCase().replace(/ /g, '_')}/img (1).png`}
-          alt={`${vehicle.make} ${vehicle.model}`}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            opacity: 1,
-            transition: 'opacity 0.3s'
-          }}
-          onError={(e) => {
-            // Hide the image if it fails to load so the placeholder text underneath is visible
-            e.target.style.opacity = '0';
-          }}
-        />
+        {/* Only load the image if it is provided directly from the database */}
+        {vehicle.image && (
+          <img 
+            src={vehicle.image}
+            alt={`${vehicle.make} ${vehicle.model}`}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: 1,
+              transition: 'opacity 0.3s'
+            }}
+            onError={(e) => {
+              // Hide the image if it fails to load so the placeholder text underneath is visible
+              e.target.style.opacity = '0';
+            }}
+          />
+        )}
         
         {vehicle.featured && (
           <div style={{
@@ -89,57 +99,75 @@ const VehicleCard = ({ vehicle, viewMode }) => {
             FEATURED
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Content Section */}
-      <div style={{
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        flexGrow: 1,
-      }}>
+      <motion.div
+        layout
+        transition={LAYOUT_TRANSITION}
+        style={{
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          flexGrow: 1,
+        }}>
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <h3 style={{
-              margin: 0,
-              fontSize: isGrid ? '20px' : '28px',
-              fontWeight: 800,
-              color: '#1a2744',
-              fontFamily: "'Manrope', sans-serif",
-            }}>
+            <motion.h3
+              layout="position"
+              animate={{ fontSize: isGrid ? 20 : 28 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                margin: 0,
+                fontWeight: 800,
+                color: '#1a2744',
+                fontFamily: "'Manrope', sans-serif",
+              }}>
               {vehicle.make} {vehicle.model}
-            </h3>
-            <span style={{
-              fontSize: isGrid ? '18px' : '24px',
-              fontWeight: 700,
-              color: '#1a2744',
-              fontFamily: "'Manrope', sans-serif",
-            }}>
+            </motion.h3>
+            <motion.span
+              layout="position"
+              animate={{ fontSize: isGrid ? 18 : 24 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                fontWeight: 700,
+                color: '#1a2744',
+                fontFamily: "'Manrope', sans-serif",
+              }}>
               {formattedPrice}
-            </span>
+            </motion.span>
           </div>
 
           <div style={{ display: 'flex', gap: '12px', color: '#666', fontSize: '14px', fontFamily: "'Manrope', sans-serif", marginBottom: '16px' }}>
-            <span>{vehicle.year}</span> • 
-            <span>{vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : 'New'}</span> • 
+            <span>{vehicle.year}</span> •
+            <span>{vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : 'New'}</span> •
             <span>{vehicle.fuelType}</span>
           </div>
 
-          {!isGrid && (
-            <p style={{
-              color: '#555',
-              fontSize: '15px',
-              lineHeight: 1.5,
-              fontFamily: "'Manrope', sans-serif",
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden'
-            }}>
-              {vehicle.description}
-            </p>
-          )}
+          <AnimatePresence initial={false}>
+            {!isGrid && (
+              <motion.p
+                key="description"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                style={{
+                  color: '#555',
+                  fontSize: '15px',
+                  lineHeight: 1.5,
+                  fontFamily: "'Manrope', sans-serif",
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  margin: 0,
+                }}>
+                {vehicle.description}
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: isGrid ? '20px' : '0' }}>
@@ -174,7 +202,7 @@ const VehicleCard = ({ vehicle, viewMode }) => {
             </svg>
           </button>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

@@ -121,8 +121,9 @@ const InventoryPage = () => {
             </button>
           </div>
         ) : (
-          <motion.div 
+          <motion.div
             layout
+            transition={{ layout: { duration: 0.35, ease: [0.4, 0, 0.2, 1] } }}
             style={{
               display: 'grid',
               gridTemplateColumns: viewMode === 'grid' ? 'repeat(4, 1fr)' : '1fr',
@@ -135,7 +136,11 @@ const InventoryPage = () => {
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
+                transition={{
+                  opacity: { duration: 0.4, delay: index * 0.05 },
+                  y: { duration: 0.4, delay: index * 0.05 },
+                  layout: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
+                }}
               >
                 <VehicleCard vehicle={vehicle} viewMode={viewMode} />
               </motion.div>
