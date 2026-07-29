@@ -12,7 +12,8 @@
         "description": "A high-performance coupe combining aggressive styling, precision handling, and exhilarating driving dynamics.",
         "mileage": 8500,
         "color": "M Sao Paulo Yellow solid",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/m4_competition/img (1).png"
     },
     {
         "id": "CAR002",
@@ -27,7 +28,8 @@
         "description": "A refined luxury sedan offering premium comfort, advanced technology, and a smooth driving experience.",
         "mileage": 12500,
         "color": "Obsidian Black",
-        "stock": "Limited Stock"
+        "stock": "Limited Stock",
+        "image": "/inventory_data/car_images/c300/img (1).png"
     },
     {
         "id": "CAR003",
@@ -42,7 +44,8 @@
         "description": "Executive luxury with quattro performance and an elegant cabin.",
         "mileage": 6200,
         "color": "Daytona Grey",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/a6/img (1).png"
     },
     {
         "id": "CAR004",
@@ -57,7 +60,8 @@
         "description": "Instant acceleration with cutting-edge electric technology.",
         "mileage": 3200,
         "color": "Midnight Silver",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/model_3_performance/img (1).png"
     },
     {
         "id": "CAR005",
@@ -72,7 +76,8 @@
         "description": "The legendary sports car with timeless design and thrilling performance.",
         "mileage": 1800,
         "color": "Guards Red",
-        "stock": "Limited Stock"
+        "stock": "Limited Stock",
+        "image": "/inventory_data/car_images/911_carrera/img (1).png"
     },
     {
         "id": "CAR006",
@@ -87,7 +92,8 @@
         "description": "Reliable hybrid sedan offering comfort and outstanding fuel efficiency.",
         "mileage": 15600,
         "color": "Pearl White",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/camry_hybrid/img (1).png"
     },
     {
         "id": "CAR007",
@@ -102,7 +108,8 @@
         "description": "Sporty sedan with responsive handling and premium comfort.",
         "mileage": 7900,
         "color": "Crystal Black",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/civic_rs/img (1).png"
     },
     {
         "id": "CAR008",
@@ -117,7 +124,8 @@
         "description": "Classic American muscle with unmistakable V8 performance.",
         "mileage": 5100,
         "color": "Race Red",
-        "stock": "Limited Stock"
+        "stock": "Limited Stock",
+        "image": "/inventory_data/car_images/mustang_gt/img (1).png"
     },
     {
         "id": "CAR009",
@@ -132,7 +140,8 @@
         "description": "Luxury SUV built for comfort, prestige, and capability.",
         "mileage": 4100,
         "color": "Santorini Black",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/range_rover_sport/img (1).png"
     },
     {
         "id": "CAR010",
@@ -147,7 +156,8 @@
         "description": "Scandinavian luxury with industry-leading safety features.",
         "mileage": 13400,
         "color": "Denim Blue",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/xc60/img (1).png"
     },
     {
         "id": "CAR011",
@@ -162,7 +172,8 @@
         "description": "Futuristic electric SUV with rapid charging and premium technology.",
         "mileage": 2800,
         "color": "Atlas White",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/ioniq_5/img (1).avif"
     },
     {
         "id": "CAR012",
@@ -177,7 +188,8 @@
         "description": "Electric crossover delivering sports-car levels of performance.",
         "mileage": 3600,
         "color": "Runway Red",
-        "stock": "Limited Stock"
+        "stock": "Limited Stock",
+        "image": "/inventory_data/car_images/ev6_gt/img (1).png"
     },
     {
         "id": "CAR013",
@@ -192,7 +204,8 @@
         "description": "Elegant SUV combining comfort, style, and engaging driving dynamics.",
         "mileage": 11800,
         "color": "Soul Red Crystal",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/cx-5/img (1).png"
     },
     {
         "id": "CAR014",
@@ -207,7 +220,8 @@
         "description": "Legendary hot hatch balancing practicality with exhilarating performance.",
         "mileage": 6500,
         "color": "Kings Red",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/golf_gti/img (1).png"
     },
     {
         "id": "CAR015",
@@ -222,7 +236,8 @@
         "description": "Spacious family SUV with advanced driver assistance technologies.",
         "mileage": 8700,
         "color": "Gun Metallic",
-        "stock": "Limited Stock"
+        "stock": "Limited Stock",
+        "image": "/inventory_data/car_images/x-trail/img (1).png"
     },
     {
         "id": "CAR016",
@@ -237,7 +252,8 @@
         "description": "Luxury hybrid SUV delivering refined comfort and exceptional craftsmanship.",
         "mileage": 4200,
         "color": "Sonic Titanium",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/rx_500h/img (1).png"
     },
     {
         "id": "CAR017",
@@ -252,7 +268,8 @@
         "description": "Mid-engine supercar offering breathtaking speed and iconic styling.",
         "mileage": 2300,
         "color": "Torch Red",
-        "stock": "Limited Stock"
+        "stock": "Limited Stock",
+        "image": "/inventory_data/car_images/corvette_stingray/img (1).png"
     },
     {
         "id": "CAR018",
@@ -267,7 +284,8 @@
         "description": "British luxury SUV blending performance with sophisticated design.",
         "mileage": 9400,
         "color": "British Racing Green",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/f-pace/img (1).png"
     },
     {
         "id": "CAR019",
@@ -282,7 +300,8 @@
         "description": "Compact premium hatchback known for its fun handling and unique personality.",
         "mileage": 5700,
         "color": "Island Blue",
-        "stock": "In Stock"
+        "stock": "In Stock",
+        "image": "/inventory_data/car_images/cooper_s/img (1).png"
     },
     {
         "id": "CAR020",
@@ -297,6 +316,7 @@
         "description": "Adventure-ready crossover with legendary all-wheel-drive capability.",
         "mileage": 8100,
         "color": "Magnetite Grey",
-        "stock": "Sold Out"
+        "stock": "Sold Out",
+        "image": "/inventory_data/car_images/subaru_outback/img (1).avif"
     }
 ]
