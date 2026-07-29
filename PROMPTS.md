@@ -34,3 +34,5 @@ The user also asked for an Update vehicle endpoint. Before building it we flagge
 
 ## Session   :
 Asked Claude to verify a proposed dashboard hierarchy against requirements.md, decide how to handle several out-of-spec sections (Analytics, Customers, Purchases timeline, Settings — deferred), and confirm the next backend unit. Landed on DELETE /api/vehicles/:id (admin-only), built test-first: 4 new Supertest cases (401/403/200-with-DB-check/404) added to vehicles.test.js, confirmed Red, then the minimal deleteVehicle controller + route to go Green — all 31 tests pass.
+
+## Session   :
