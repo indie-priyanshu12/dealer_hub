@@ -43,3 +43,6 @@ Asked Claude to implement POST /api/vehicles/:id/purchase test-first, per the ba
 
 ## Session   :
 Asked Claude to implement POST /api/vehicles/:id/restock test-first, the last endpoint in the backend build order. Claude wrote 5 Supertest cases first (401, 403 with a DB-unchanged check, successful quantity-based increment, invalid-quantity rejection covering both zero and missing values, and 404), confirmed them Red, then added the minimal admin-gated controller and route. Flagged that restock accepting a quantity (vs. purchase's fixed -1) is a deliberate asymmetry worth reviewing.
+
+## Session   :
+Asked Claude to build the Purchase button required by requirements.md §2.2.2.4. Since no frontend component tests existed yet, Claude first set up Vitest + React Testing Library (flagging the two-test-runner tradeoff before proceeding), then built PurchaseButton test-first with 6 cases covering disabled/enabled state, success, failure, 401 handling, and event bubbling. While verifying in the browser, the first purchase attempt 404'd; Claude investigated thoroughly (route table dump, isolated reproductions, restart test) before concluding it was a transient runtime issue in one process, not a code defect, and also surfaced an unrelated pre-existing dotenv/import-order bug in server.js along the way.
