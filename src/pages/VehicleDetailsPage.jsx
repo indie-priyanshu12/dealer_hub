@@ -6,6 +6,7 @@ import PurchaseButton from '../components/Inventory/PurchaseButton';
 import DeleteVehicleButton from '../components/Inventory/DeleteVehicleButton';
 import RestockModal from '../components/Inventory/RestockModal';
 import VehicleFormModal from '../components/Inventory/VehicleFormModal';
+import { API_BASE_URL } from '../config/api';
 
 const getStoredUser = () => {
   try {
@@ -42,7 +43,7 @@ const VehicleDetailsPage = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`/api/vehicles/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/vehicles/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
           signal: controller.signal,
         });

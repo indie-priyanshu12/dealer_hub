@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
 
 const PurchaseButton = ({ vehicleId, stock, onPurchase }) => {
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ const PurchaseButton = ({ vehicleId, stock, onPurchase }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/vehicles/${vehicleId}/purchase`, {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles/${vehicleId}/purchase`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });

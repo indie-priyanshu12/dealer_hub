@@ -4,6 +4,7 @@ import VehicleCard from '../components/Inventory/VehicleCard';
 import ViewToggle from '../components/Inventory/ViewToggle';
 import SearchFilterBar from '../components/Inventory/SearchFilterBar';
 import VehicleFormModal from '../components/Inventory/VehicleFormModal';
+import { API_BASE_URL } from '../config/api';
 import { motion } from 'framer-motion';
 
 const getStoredUser = () => {
@@ -96,7 +97,7 @@ const InventoryPage = () => {
           params.set('order', order);
         }
 
-        const response = await fetch(`/api/vehicles/search?${params.toString()}`, {
+        const response = await fetch(`${API_BASE_URL}/api/vehicles/search?${params.toString()}`, {
           headers: { Authorization: `Bearer ${token}` },
           signal: controller.signal,
         });

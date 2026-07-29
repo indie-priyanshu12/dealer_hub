@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, ShieldCheck, AlertCircle, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
 import MagneticButton from './MagneticButton';
+import { API_BASE_URL } from '../config/api';
 
 // auth-page.md: "Sliding Container ... Spring Animation: stiffness:170 damping:22.
 // Movement must feel soft. No sudden acceleration."
@@ -190,7 +191,7 @@ const Auth = () => {
         ? { email: formData.email, password: formData.password }
         : { email: formData.email, password: formData.password, role: formData.role };
 
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

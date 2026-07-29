@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { API_BASE_URL } from '../../config/api';
 
 const RestockModal = ({ vehicleId, vehicleLabel, currentStock, onRestocked }) => {
   const [open, setOpen] = useState(false);
@@ -25,7 +26,7 @@ const RestockModal = ({ vehicleId, vehicleLabel, currentStock, onRestocked }) =>
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/vehicles/${vehicleId}/restock`, {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles/${vehicleId}/restock`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

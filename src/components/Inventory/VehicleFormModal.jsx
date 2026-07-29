@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { API_BASE_URL } from '../../config/api';
 
 const EMPTY_FORM = {
   vehicleId: '',
@@ -129,7 +130,7 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const url = isEditMode ? `/api/vehicles/${vehicle._id}` : '/api/vehicles';
+      const url = isEditMode ? `${API_BASE_URL}/api/vehicles/${vehicle._id}` : `${API_BASE_URL}/api/vehicles`;
       const method = isEditMode ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,

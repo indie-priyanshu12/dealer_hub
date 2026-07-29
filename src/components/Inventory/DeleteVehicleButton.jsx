@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
 
 const DeleteVehicleButton = ({ vehicleId, vehicleLabel, onDeleted }) => {
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ const DeleteVehicleButton = ({ vehicleId, vehicleLabel, onDeleted }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/vehicles/${vehicleId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles/${vehicleId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -6,7 +6,10 @@ import vehicleRoutes from './routes/vehicleRoutes.js';
 
 const app = express();
 
-app.use(cors());
+// Locked to the deployed frontend's origin once CLIENT_URL is set (e.g. on
+// Render); left wide open otherwise so local dev and the test suite are
+// unaffected.
+app.use(cors(process.env.CLIENT_URL ? { origin: process.env.CLIENT_URL } : undefined));
 app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));

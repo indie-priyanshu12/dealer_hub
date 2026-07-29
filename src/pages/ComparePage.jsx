@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import DashboardLayout from '../components/Dashboard/DashboardLayout';
 import PurchaseButton from '../components/Inventory/PurchaseButton';
 import { useCompare, MAX_COMPARE } from '../context/CompareContext';
+import { API_BASE_URL } from '../config/api';
 
 const getStoredUser = () => {
   try {
@@ -59,7 +60,7 @@ const ComparePage = () => {
         const token = localStorage.getItem('token');
         const responses = await Promise.all(
           compareIds.map((id) =>
-            fetch(`/api/vehicles/${id}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
+            fetch(`${API_BASE_URL}/api/vehicles/${id}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
           )
         );
 
