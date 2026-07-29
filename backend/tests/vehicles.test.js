@@ -462,3 +462,92 @@ describe('POST /api/vehicles/:id/purchase', () => {
     expect(res.statusCode).toEqual(404);
   });
 });
+
+describe('POST /api/vehicles/:id/restock', () => {
+  const getToken = async (role = 'User') => {
+    const user = await User.create({
+      email: `restocker-${role.toLowerCase()}@example.com`,
+      password: 'password123',
+      role,
+    });
+    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'test_secret_key', {
+      expiresIn: '30d',
+    });
+  };
+
+  it('should return 401 if not authorized', async () => {
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' });
+
+    const res = await request(app)
+      .post(`/api/vehicles/${vehicle._id}/restock`)
+      .send({ quantity: 10 });
+
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it('should return 403 for an authenticated non-admin user', async () => {
+    const token = await getToken('User');
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' }); // seeded with stock: 5
+
+    const res = await request(app)
+      .post(`/api/vehicles/${vehicle._id}/restock`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ quantity: 10 });
+
+    expect(res.statusCode).toEqual(403);
+
+    const inDb = await Vehicle.findById(vehicle._id);
+    expect(inDb.stock).toBe(5);
+  });
+
+  it('should increase stock by the given quantity for an admin user', async () => {
+    const token = await getToken('Admin');
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' }); // seeded with stock: 5
+
+    const res = await request(app)
+      .post(`/api/vehicles/${vehicle._id}/restock`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ quantity: 10 });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.success).toBeTruthy();
+    expect(res.body.data.stock).toBe(15);
+
+    const inDb = await Vehicle.findById(vehicle._id);
+    expect(inDb.stock).toBe(15);
+  });
+
+  it('should reject a restock with a missing or non-positive quantity', async () => {
+    const token = await getToken('Admin');
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' });
+
+    const zeroRes = await request(app)
+      .post(`/api/vehicles/${vehicle._id}/restock`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ quantity: 0 });
+    expect(zeroRes.statusCode).toEqual(400);
+    expect(zeroRes.body.success).toBeFalsy();
+
+    const missingRes = await request(app)
+      .post(`/api/vehicles/${vehicle._id}/restock`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({});
+    expect(missingRes.statusCode).toEqual(400);
+    expect(missingRes.body.success).toBeFalsy();
+
+    const inDb = await Vehicle.findById(vehicle._id);
+    expect(inDb.stock).toBe(5);
+  });
+
+  it('should return 404 for a non-existent vehicle id', async () => {
+    const token = await getToken('Admin');
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .post(`/api/vehicles/${fakeId}/restock`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ quantity: 10 });
+
+    expect(res.statusCode).toEqual(404);
+  });
+});

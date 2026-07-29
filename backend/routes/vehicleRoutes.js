@@ -1,5 +1,5 @@
 import express from 'express';
-import { getVehicles, searchVehicles, createVehicle, updateVehicle, deleteVehicle, purchaseVehicle } from '../controllers/vehicleController.js';
+import { getVehicles, searchVehicles, createVehicle, updateVehicle, deleteVehicle, purchaseVehicle, restockVehicle } from '../controllers/vehicleController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -13,5 +13,6 @@ router.post('/', protect, createVehicle);
 router.put('/:id', protect, admin, updateVehicle);
 router.delete('/:id', protect, admin, deleteVehicle);
 router.post('/:id/purchase', protect, purchaseVehicle);
+router.post('/:id/restock', protect, admin, restockVehicle);
 
 export default router;
