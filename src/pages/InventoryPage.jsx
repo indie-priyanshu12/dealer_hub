@@ -3,6 +3,7 @@ import Navbar from '../components/Landing/Navbar';
 import VehicleCard from '../components/Inventory/VehicleCard';
 import ViewToggle from '../components/Inventory/ViewToggle';
 import SearchFilterBar from '../components/Inventory/SearchFilterBar';
+import AddVehicleModal from '../components/Inventory/AddVehicleModal';
 import { motion } from 'framer-motion';
 
 const getStoredUser = () => {
@@ -60,6 +61,12 @@ const InventoryPage = () => {
 
   const handleVehicleDeleted = (deletedId) => {
     setVehicles((prev) => prev.filter((v) => v._id !== deletedId));
+  };
+
+  const handleVehicleCreated = (newVehicle) => {
+    setVehicles((prev) => [newVehicle, ...prev]);
+    setCategoryOptions((prev) => (newVehicle.category && !prev.includes(newVehicle.category) ? [...prev, newVehicle.category].sort() : prev));
+    setFuelTypeOptions((prev) => (newVehicle.fuelType && !prev.includes(newVehicle.fuelType) ? [...prev, newVehicle.fuelType].sort() : prev));
   };
 
   useEffect(() => {
@@ -194,7 +201,10 @@ const InventoryPage = () => {
             </p>
           </div>
 
-          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {isAdmin && <AddVehicleModal onCreated={handleVehicleCreated} />}
+            <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+          </div>
         </div>
 
         {!loading && !error && (
