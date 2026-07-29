@@ -178,15 +178,16 @@ const InventoryPage = () => {
   return (
     <DashboardLayout>
       <main style={{ paddingTop: '48px', paddingBottom: '100px', maxWidth: '1400px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
-          <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px', marginBottom: '40px' }}>
+          <div style={{ minWidth: 0 }}>
             <h1 style={{
               fontFamily: "'Manrope', sans-serif",
               fontSize: '48px',
               fontWeight: 800,
               color: '#1a2744',
               letterSpacing: '-1px',
-              margin: '0 0 8px 0'
+              margin: '0 0 8px 0',
+              overflowWrap: 'anywhere',
             }}>
               {user ? `Welcome back, ${user.email}` : 'Inventory'}
             </h1>
@@ -200,7 +201,7 @@ const InventoryPage = () => {
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
             {isAdmin && <VehicleFormModal onSaved={handleVehicleCreated} />}
             <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
           </div>
@@ -294,7 +295,10 @@ const InventoryPage = () => {
             transition={{ layout: { duration: 0.35, ease: [0.4, 0, 0.2, 1] }, opacity: { duration: 0.2 } }}
             style={{
               display: 'grid',
-              gridTemplateColumns: viewMode === 'grid' ? 'repeat(4, 1fr)' : '1fr',
+              // minmax(0, 1fr), not bare 1fr — grid tracks default to a min width equal
+              // to their content's intrinsic size, so without this a card that doesn't
+              // want to shrink pushes the whole grid past the container instead of wrapping.
+              gridTemplateColumns: viewMode === 'grid' ? 'repeat(3, minmax(0, 1fr))' : 'minmax(0, 1fr)',
               gap: '24px',
               pointerEvents: searching ? 'none' : 'auto',
             }}
