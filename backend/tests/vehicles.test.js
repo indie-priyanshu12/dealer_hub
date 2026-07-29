@@ -338,3 +338,64 @@ describe('PUT /api/vehicles/:id', () => {
     expect(res.body.success).toBeFalsy();
   });
 });
+
+describe('DELETE /api/vehicles/:id', () => {
+  const getToken = async (role = 'User') => {
+    const user = await User.create({
+      email: `deleter-${role.toLowerCase()}@example.com`,
+      password: 'password123',
+      role,
+    });
+    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'test_secret_key', {
+      expiresIn: '30d',
+    });
+  };
+
+  it('should return 401 if not authorized', async () => {
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' });
+
+    const res = await request(app).delete(`/api/vehicles/${vehicle._id}`);
+
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it('should return 403 for an authenticated non-admin user', async () => {
+    const token = await getToken('User');
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' });
+
+    const res = await request(app)
+      .delete(`/api/vehicles/${vehicle._id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(403);
+
+    const stillExists = await Vehicle.findById(vehicle._id);
+    expect(stillExists).not.toBeNull();
+  });
+
+  it('should delete a vehicle for an admin user', async () => {
+    const token = await getToken('Admin');
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' });
+
+    const res = await request(app)
+      .delete(`/api/vehicles/${vehicle._id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.success).toBeTruthy();
+
+    const inDb = await Vehicle.findById(vehicle._id);
+    expect(inDb).toBeNull();
+  });
+
+  it('should return 404 for a non-existent vehicle id', async () => {
+    const token = await getToken('Admin');
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .delete(`/api/vehicles/${fakeId}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(404);
+  });
+});
