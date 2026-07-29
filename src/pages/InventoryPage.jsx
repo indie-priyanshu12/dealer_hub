@@ -53,7 +53,8 @@ const InventoryPage = () => {
     setFilters(DEFAULT_FILTERS);
   };
 
-  const handleVehiclePurchased = (updatedVehicle) => {
+  // Shared by purchase and restock — both just replace one vehicle's server state in place.
+  const handleVehicleUpdated = (updatedVehicle) => {
     setVehicles((prev) => prev.map((v) => (v._id === updatedVehicle._id ? updatedVehicle : v)));
   };
 
@@ -305,8 +306,9 @@ const InventoryPage = () => {
                   vehicle={vehicle}
                   viewMode={viewMode}
                   isAdmin={isAdmin}
-                  onPurchase={handleVehiclePurchased}
+                  onPurchase={handleVehicleUpdated}
                   onDelete={handleVehicleDeleted}
+                  onRestock={handleVehicleUpdated}
                 />
               </motion.div>
             ))}
