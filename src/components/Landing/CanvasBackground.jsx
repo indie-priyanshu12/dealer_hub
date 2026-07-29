@@ -7,7 +7,63 @@ import * as THREE from 'three';
 // With camera at z=7 and fov=40, a value of ~5.5 fills roughly 70% of screen height nicely.
 const TARGET_SIZE = 5.5;
 
-const VehicleModel = ({ scrollProgress }) => {
+// The car's resting pose for each of the 7 scroll-driven scenes (see ScrollOverlay.jsx
+// for the matching text panels). scale is a multiplier on top of normalizedScale: the
+// car grows for the "hero" beats (1, 3) and eases back for the reading-heavy scenes
+// (2, 4) and the off-screen scenes (5, 6). Scene 7 stays modest (1.0) because its
+// heading is centered — unlike scenes 1/3, there's no side of the screen for a bigger
+// car to hide in without cutting through the text.
+const SCENE_POSES = [
+  { x: 2.3, y: -0.5, z: 0, rotY: -0.5, scale: 1.05 },             // 1: Hero
+  { x: 6.0, y: -0.5, z: 0, rotY: -1.0, scale: 0.85 },             // 2: Brand
+  { x: -2.8, y: -0.5, z: 0, rotY: -2.5, scale: 1.2 },             // 3: Featured
+  { x: -2.4, y: -0.5, z: 0, rotY: -Math.PI, scale: 0.95 },        // 4: Why Choose Us
+  { x: 0.3, y: -6.0, z: 0, rotY: -Math.PI * 1.25, scale: 0.8 },   // 5: Latest Arrivals
+  { x: 0.3, y: -6.0, z: 0, rotY: -Math.PI * 1.5, scale: 0.8 },    // 6: Timeline
+  { x: 0.3, y: -1.0, z: 0, rotY: Math.PI / 3, scale: 1.0 },       // 7: CTA
+];
+
+const SCENE_SPAN = 1 / SCENE_POSES.length;
+// Fraction of each scene's own span spent easing into the next pose, timed to finish
+// exactly at the scene boundary. The remaining fraction is a pure hold at that scene's
+// resting pose, so text stays readable against a settled (not perpetually drifting) car.
+const TRANSITION_FRACTION = 0.3;
+
+function smoothstep(t) {
+  const c = THREE.MathUtils.clamp(t, 0, 1);
+  return c * c * (3 - 2 * c);
+}
+
+// Pure function of scroll progress (0..1) — deliberately NOT time-based. Lenis already
+// smooths the raw scroll input, so deriving the car's pose directly from that value
+// (rather than chasing it with a second, separate ease) keeps the two in perfect
+// lockstep: scroll a pixel, the car moves by exactly the right amount, every time.
+function getScenePose(scrollProgress) {
+  const p = THREE.MathUtils.clamp(scrollProgress, 0, 1);
+  const rawIndex = p / SCENE_SPAN;
+  const sceneIndex = Math.min(SCENE_POSES.length - 1, Math.floor(rawIndex));
+  const nextIndex = Math.min(SCENE_POSES.length - 1, sceneIndex + 1);
+
+  const localT = rawIndex - sceneIndex; // 0..1 position within this scene's own span
+  const holdEnd = 1 - TRANSITION_FRACTION;
+  const blendT = localT <= holdEnd ? 0 : smoothstep((localT - holdEnd) / TRANSITION_FRACTION);
+
+  const a = SCENE_POSES[sceneIndex];
+  const b = SCENE_POSES[nextIndex];
+
+  return {
+    x: THREE.MathUtils.lerp(a.x, b.x, blendT),
+    y: THREE.MathUtils.lerp(a.y, b.y, blendT),
+    z: THREE.MathUtils.lerp(a.z, b.z, blendT),
+    rotY: THREE.MathUtils.lerp(a.rotY, b.rotY, blendT),
+    scale: THREE.MathUtils.lerp(a.scale, b.scale, blendT),
+  };
+}
+
+// Ambient cursor-tilt parallax is the only thing left time-based, so it feels soft.
+const PARALLAX_DAMP = 4;
+
+const VehicleModel = ({ scrollProgressRef }) => {
   const { scene: rawScene } = useGLTF('/car_models/bmw_e34_stance_style.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
   const positionRef = useRef();
   const rotationRef = useRef();
@@ -27,7 +83,7 @@ const VehicleModel = ({ scrollProgress }) => {
     const s = maxDim > 0 ? TARGET_SIZE / maxDim : 1;
 
     // The yOffset (in native units) needed so bottom of car sits at Y=0 when scaled.
-    // After scaling, the bottom will be at: (box.min.y * s), 
+    // After scaling, the bottom will be at: (box.min.y * s),
     // so we need to offset by -box.min.y * s to bring it to 0.
     const yOff = -box.min.y * s;
 
@@ -47,83 +103,29 @@ const VehicleModel = ({ scrollProgress }) => {
   useFrame((state, delta) => {
     if (!positionRef.current || !rotationRef.current) return;
 
-    // SCROLL ANIMATION - 7 scenes across 0..1
-    let targetPosX = 2.0;
-    let targetPosY = 0;
-    let targetPosZ = 0;
-    let targetRotationY = -0.5;
+    const pose = getScenePose(scrollProgressRef.current);
 
-    // 7 scenes × 90vh each. Each scene = 1/7 ≈ 0.1428 of total scroll progress.
+    // Position, rotation and scale are set DIRECTLY from scroll position — no damping,
+    // no time-based easing. Any per-frame smoothing here would chase a target that
+    // itself moves every frame while scrolling, and since the chase speed depends on
+    // frame delta, that's exactly what reads as jitter under an uneven frame pace.
+    // getScenePose() is already a smoothstep-eased curve over scroll position, so the
+    // motion stays soft — it's just aligned to scroll pixels instead of wall-clock time.
+    positionRef.current.position.set(pose.x, pose.y, pose.z);
+    rotationRef.current.rotation.y = pose.rotY;
+    rotationRef.current.scale.setScalar(pose.scale);
 
-    // Scene 1 (0.000–0.143): Hero — Text Left, Car Right angled rear
-    if (scrollProgress < 0.143) {
-      targetPosX = 2.3;
-      targetPosY = -0.5;
-      targetPosZ = 0;
-      targetRotationY = -0.5;
-    }
-    // Scene 2 (0.143–0.286): Brand — Car slides off right, clean text scene
-    else if (scrollProgress < 0.286) {
-      targetPosX = 6.0;
-      targetPosY = -0.5;
-      targetPosZ = 0;
-      targetRotationY = -1.0;
-    }
-    // Scene 3 (0.286–0.429): Featured — Text Right, Car front-left
-    else if (scrollProgress < 0.429) {
-      targetPosX = -2.8;
-      targetPosY = -0.5;
-      targetPosZ = 0;
-      targetRotationY = -2.5;
-    }
-    // Scene 4 (0.429–0.571): Why Choose Us — Text Right, Car Left side profile
-    else if (scrollProgress < 0.571) {
-      targetPosX = -2.4;
-      targetPosY = -0.5;
-      targetPosZ = 0;
-      targetRotationY = -Math.PI;
-    }
-    // Scene 5 (0.571–0.714): Latest Arrivals — Car drops below camera
-    else if (scrollProgress < 0.714) {
-      targetPosX = 0.3;
-      targetPosY = -6.0;
-      targetPosZ = 0;
-      targetRotationY = -Math.PI * 1.25;
-    }
-    // Scene 6 (0.714–0.857): Timeline — Car still hidden below
-    else if (scrollProgress < 0.857) {
-      targetPosX = 0.3;
-      targetPosY = -6.0;
-      targetPosZ = 0;
-      targetRotationY = -Math.PI * 1.5;
-    }
-    // Scene 7 (0.857–1.000): CTA — Car rises to lower-center, text is top quarter
-    else {
-      targetPosX = 0.3;
-      targetPosY = -1.0;
-      targetPosZ = 0;
-      targetRotationY = Math.PI / 3;
-    }
-
-    // Smooth interpolation for position (outer group)
-    positionRef.current.position.x = THREE.MathUtils.damp(positionRef.current.position.x, targetPosX, 4, delta);
-    positionRef.current.position.y = THREE.MathUtils.damp(positionRef.current.position.y, targetPosY, 4, delta);
-    positionRef.current.position.z = THREE.MathUtils.damp(positionRef.current.position.z, targetPosZ, 4, delta);
-
-    // Smooth interpolation for rotation (inner group — shadow stays flat)
-    rotationRef.current.rotation.y = THREE.MathUtils.damp(rotationRef.current.rotation.y, targetRotationY, 4, delta);
-
-    // Subtle mouse parallax
+    // Subtle mouse parallax — ambient, so it keeps the lazier damp rate.
     const mouseX = (state.pointer.x * Math.PI) / 60;
     const mouseY = (state.pointer.y * Math.PI) / 60;
-    rotationRef.current.rotation.x = THREE.MathUtils.damp(rotationRef.current.rotation.x, mouseY, 4, delta);
-    rotationRef.current.rotation.z = THREE.MathUtils.damp(rotationRef.current.rotation.z, -mouseX, 4, delta);
+    rotationRef.current.rotation.x = THREE.MathUtils.damp(rotationRef.current.rotation.x, mouseY, PARALLAX_DAMP, delta);
+    rotationRef.current.rotation.z = THREE.MathUtils.damp(rotationRef.current.rotation.z, -mouseX, PARALLAX_DAMP, delta);
   });
 
   return (
     // Outer group: handles XYZ translation (shadow follows)
     <group ref={positionRef}>
-      {/* Inner group: handles rotation only (shadow stays flat on Y=0) */}
+      {/* Inner group: handles rotation + scroll-driven scale (shadow stays flat on Y=0) */}
       <group ref={rotationRef}>
         <primitive
           object={scene}
@@ -131,7 +133,7 @@ const VehicleModel = ({ scrollProgress }) => {
           position={[0, yOffset, 0]}
         />
       </group>
-      {/* Shadow is in the outer (translation) group but OUTSIDE rotation, so it stays flat */}
+      {/* Shadow is in the outer (translation) group but OUTSIDE rotation/scale, so it stays flat and constant */}
       <ContactShadows
         position={[0, 0, 0]}
         opacity={0.55}
@@ -146,7 +148,7 @@ const VehicleModel = ({ scrollProgress }) => {
 
 useGLTF.preload('/car_models/bmw_e34_stance_style.glb');
 
-const CanvasBackground = ({ scrollProgress }) => {
+const CanvasBackground = ({ scrollProgressRef }) => {
   return (
     <Canvas
       camera={{ position: [0, 1.0, 7], fov: 40 }}
@@ -158,7 +160,7 @@ const CanvasBackground = ({ scrollProgress }) => {
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
         <directionalLight position={[-10, 10, -10]} intensity={0.5} />
         <Environment preset="city" blur={0.8} />
-        <VehicleModel scrollProgress={scrollProgress} />
+        <VehicleModel scrollProgressRef={scrollProgressRef} />
       </Suspense>
     </Canvas>
   );

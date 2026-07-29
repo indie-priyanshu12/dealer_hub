@@ -9,7 +9,7 @@ const SceneContainer = ({ children, style }) => (
   </div>
 );
 
-const ScrollOverlay = ({ scrollProgress }) => {
+const ScrollOverlay = ({ showScrollHint }) => {
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', fontFamily: "'Manrope', sans-serif" }}>
       
@@ -40,7 +40,7 @@ const ScrollOverlay = ({ scrollProgress }) => {
         </motion.div>
         
         {/* Scroll Indicator */}
-        <div style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', opacity: scrollProgress > 0.05 ? 0 : 1, transition: 'opacity 0.3s' }}>
+        <div style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', opacity: showScrollHint ? 1 : 0, transition: 'opacity 0.3s' }}>
           <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '700', color: '#64748B' }}>Scroll to Explore</span>
           <div style={{ width: '1px', height: '40px', background: 'linear-gradient(to bottom, #64748B, transparent)' }} />
         </div>
