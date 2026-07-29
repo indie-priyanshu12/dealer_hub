@@ -79,6 +79,45 @@ export const createVehicle = async (req, res) => {
   }
 };
 
+export const purchaseVehicle = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findById(req.params.id);
+
+    if (!vehicle) {
+      return res.status(404).json({
+        success: false,
+        error: 'Vehicle not found'
+      });
+    }
+
+    if (vehicle.stock <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Vehicle is out of stock'
+      });
+    }
+
+    vehicle.stock -= 1;
+    await vehicle.save();
+
+    res.status(200).json({
+      success: true,
+      data: vehicle
+    });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+    res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  }
+};
+
 export const deleteVehicle = async (req, res) => {
   try {
     const vehicle = await Vehicle.findByIdAndDelete(req.params.id);

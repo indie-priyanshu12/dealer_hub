@@ -1,5 +1,5 @@
 import express from 'express';
-import { getVehicles, searchVehicles, createVehicle, updateVehicle, deleteVehicle } from '../controllers/vehicleController.js';
+import { getVehicles, searchVehicles, createVehicle, updateVehicle, deleteVehicle, purchaseVehicle } from '../controllers/vehicleController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -12,5 +12,6 @@ router.post('/', protect, createVehicle);
 // endpoint — restricted to Admin only per explicit user decision.
 router.put('/:id', protect, admin, updateVehicle);
 router.delete('/:id', protect, admin, deleteVehicle);
+router.post('/:id/purchase', protect, purchaseVehicle);
 
 export default router;

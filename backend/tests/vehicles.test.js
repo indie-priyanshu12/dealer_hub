@@ -399,3 +399,66 @@ describe('DELETE /api/vehicles/:id', () => {
     expect(res.statusCode).toEqual(404);
   });
 });
+
+describe('POST /api/vehicles/:id/purchase', () => {
+  const getToken = async (role = 'User') => {
+    const user = await User.create({
+      email: `buyer-${role.toLowerCase()}@example.com`,
+      password: 'password123',
+      role,
+    });
+    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'test_secret_key', {
+      expiresIn: '30d',
+    });
+  };
+
+  it('should return 401 if not authorized', async () => {
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' });
+
+    const res = await request(app).post(`/api/vehicles/${vehicle._id}/purchase`);
+
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it('should decrease stock by 1 for an authenticated non-admin user', async () => {
+    const token = await getToken('User');
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR001' }); // seeded with stock: 5
+
+    const res = await request(app)
+      .post(`/api/vehicles/${vehicle._id}/purchase`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.success).toBeTruthy();
+    expect(res.body.data.stock).toBe(4);
+
+    const inDb = await Vehicle.findById(vehicle._id);
+    expect(inDb.stock).toBe(4);
+  });
+
+  it('should reject a purchase when stock is already 0', async () => {
+    const token = await getToken('User');
+    const vehicle = await Vehicle.findOne({ vehicleId: 'CAR002' }); // seeded with stock: 0
+
+    const res = await request(app)
+      .post(`/api/vehicles/${vehicle._id}/purchase`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.success).toBeFalsy();
+
+    const inDb = await Vehicle.findById(vehicle._id);
+    expect(inDb.stock).toBe(0);
+  });
+
+  it('should return 404 for a non-existent vehicle id', async () => {
+    const token = await getToken('User');
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .post(`/api/vehicles/${fakeId}/purchase`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(404);
+  });
+});
