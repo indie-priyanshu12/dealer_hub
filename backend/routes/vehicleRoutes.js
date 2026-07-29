@@ -7,9 +7,11 @@ const router = express.Router();
 router.get('/', protect, getVehicles);
 // Must stay before any future '/:id' route, or Express will match "search" as an id.
 router.get('/search', protect, searchVehicles);
-router.post('/', protect, createVehicle);
-// Deviates from requirements.md's literal "Authenticated user" access for this
-// endpoint — restricted to Admin only per explicit user decision.
+// Both create and update deviate from requirements.md's literal "Authenticated
+// user" access — restricted to Admin only so the whole management surface
+// (add/update/delete/restock) is consistently admin-gated server-side, matching
+// the admin-only visibility §2.2.2.5 requires for their frontend UI.
+router.post('/', protect, admin, createVehicle);
 router.put('/:id', protect, admin, updateVehicle);
 router.delete('/:id', protect, admin, deleteVehicle);
 router.post('/:id/purchase', protect, purchaseVehicle);

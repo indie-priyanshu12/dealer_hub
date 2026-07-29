@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PurchaseButton from './PurchaseButton';
+import DeleteVehicleButton from './DeleteVehicleButton';
 
 // Shared easing for every layout (FLIP) transition in this card, so the image, content
 // block, and outer slot all settle in lockstep instead of drifting at different rates.
 const LAYOUT_TRANSITION = { duration: 0.35, ease: [0.4, 0, 0.2, 1] };
 
-const VehicleCard = ({ vehicle, viewMode, onPurchase }) => {
+const VehicleCard = ({ vehicle, viewMode, isAdmin, onPurchase, onDelete }) => {
   const isGrid = viewMode === 'grid';
   
   // Format currency
@@ -205,7 +206,16 @@ const VehicleCard = ({ vehicle, viewMode, onPurchase }) => {
             </button>
           </div>
 
-          <PurchaseButton vehicleId={vehicle._id} stock={vehicle.stock} onPurchase={onPurchase} />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', gap: '10px' }}>
+            {isAdmin && (
+              <DeleteVehicleButton
+                vehicleId={vehicle._id}
+                vehicleLabel={`${vehicle.make} ${vehicle.model}`}
+                onDeleted={onDelete}
+              />
+            )}
+            <PurchaseButton vehicleId={vehicle._id} stock={vehicle.stock} onPurchase={onPurchase} />
+          </div>
         </div>
       </motion.div>
     </motion.div>

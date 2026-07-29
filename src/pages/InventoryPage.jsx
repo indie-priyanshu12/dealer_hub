@@ -23,6 +23,7 @@ const InventoryPage = () => {
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [user] = useState(getStoredUser);
+  const isAdmin = user?.role === 'Admin';
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
@@ -54,6 +55,10 @@ const InventoryPage = () => {
 
   const handleVehiclePurchased = (updatedVehicle) => {
     setVehicles((prev) => prev.map((v) => (v._id === updatedVehicle._id ? updatedVehicle : v)));
+  };
+
+  const handleVehicleDeleted = (deletedId) => {
+    setVehicles((prev) => prev.filter((v) => v._id !== deletedId));
   };
 
   useEffect(() => {
@@ -296,7 +301,13 @@ const InventoryPage = () => {
                   layout: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
                 }}
               >
-                <VehicleCard vehicle={vehicle} viewMode={viewMode} onPurchase={handleVehiclePurchased} />
+                <VehicleCard
+                  vehicle={vehicle}
+                  viewMode={viewMode}
+                  isAdmin={isAdmin}
+                  onPurchase={handleVehiclePurchased}
+                  onDelete={handleVehicleDeleted}
+                />
               </motion.div>
             ))}
           </motion.div>

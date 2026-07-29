@@ -92,11 +92,11 @@ describe('POST /api/vehicles', () => {
     stock: 3,
   };
 
-  const getAuthToken = async () => {
+  const getToken = async (role = 'User') => {
     const user = await User.create({
-      email: 'creator@example.com',
+      email: `creator-${role.toLowerCase()}@example.com`,
       password: 'password123',
-      role: 'User',
+      role,
     });
     return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'test_secret_key', {
       expiresIn: '30d',
@@ -108,8 +108,22 @@ describe('POST /api/vehicles', () => {
     expect(res.statusCode).toEqual(401);
   });
 
-  it('should create a new vehicle for an authenticated user', async () => {
-    const token = await getAuthToken();
+  it('should return 403 for an authenticated non-admin user', async () => {
+    const token = await getToken('User');
+
+    const res = await request(app)
+      .post('/api/vehicles')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newVehicle);
+
+    expect(res.statusCode).toEqual(403);
+
+    const inDb = await Vehicle.findOne({ vehicleId: 'CAR003' });
+    expect(inDb).toBeNull();
+  });
+
+  it('should create a new vehicle for an admin user', async () => {
+    const token = await getToken('Admin');
 
     const res = await request(app)
       .post('/api/vehicles')
@@ -127,7 +141,7 @@ describe('POST /api/vehicles', () => {
   });
 
   it('should reject a vehicle missing required fields', async () => {
-    const token = await getAuthToken();
+    const token = await getToken('Admin');
 
     const res = await request(app)
       .post('/api/vehicles')
@@ -139,7 +153,7 @@ describe('POST /api/vehicles', () => {
   });
 
   it('should reject a duplicate vehicleId', async () => {
-    const token = await getAuthToken();
+    const token = await getToken('Admin');
 
     const res = await request(app)
       .post('/api/vehicles')
