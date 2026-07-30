@@ -11,9 +11,8 @@ const LAUNCH_DELAY = 260;
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'Inventory', href: '/inventory' },
-  { label: 'Compare', href: '#compare' },
-  { label: 'New Arrivals', href: '#new-arrivals' },
-  { label: 'Special Offers', href: '#special-offers' },
+  { label: 'Compare', href: '/compare' },
+  { label: 'Special Offers', href: '/special-offers' },
   { label: 'Contact', href: '/contact' },
 ];
 

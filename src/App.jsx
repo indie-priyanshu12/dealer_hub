@@ -6,6 +6,7 @@ import InventoryPage from './pages/InventoryPage';
 import VehicleDetailsPage from './pages/VehicleDetailsPage';
 import ComparePage from './pages/ComparePage';
 import ContactPage from './pages/ContactPage';
+import SpecialOffersPage from './pages/SpecialOffersPage';
 import CustomScrollbar from './components/CustomScrollbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
@@ -48,15 +49,11 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/compare"
-                element={
-                  <ProtectedRoute>
-                    <ComparePage />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Not wrapped in ProtectedRoute: ComparePage itself renders a public
+                  two-car showcase (CompareTeaser) when logged out, mirroring /inventory. */}
+              <Route path="/compare" element={<ComparePage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/special-offers" element={<SpecialOffersPage />} />
             </Routes>
           </div>
         </CompareProvider>

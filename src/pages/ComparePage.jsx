@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import DashboardLayout from '../components/Dashboard/DashboardLayout';
 import PurchaseButton from '../components/Inventory/PurchaseButton';
+import CompareTeaser from './CompareTeaser';
 import { useCompare, MAX_COMPARE } from '../context/CompareContext';
-import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL, resolveImageUrl } from '../config/api';
 
 const getStoredUser = () => {
   try {
@@ -44,6 +45,9 @@ const ComparePage = () => {
   const isAdmin = user?.role === 'Admin';
 
   useEffect(() => {
+    // Logged out → the teaser renders instead; skip the authenticated fetch
+    // entirely so a visitor never gets bounced by a 401.
+    if (!user) return;
     if (compareIds.length === 0) {
       setVehicles([]);
       setLoading(false);
@@ -88,6 +92,12 @@ const ComparePage = () => {
   const handlePurchased = (updatedVehicle) => {
     setVehicles((prev) => prev.map((v) => (v._id === updatedVehicle._id ? updatedVehicle : v)));
   };
+
+  // After all hooks (rules of hooks): visitors get the public showcase instead
+  // of the dashboard-shelled, auth-fetching compare experience.
+  if (!user) {
+    return <CompareTeaser />;
+  }
 
   return (
     <DashboardLayout>
@@ -141,7 +151,7 @@ const ComparePage = () => {
                       </div>
                       <div style={{ borderRadius: '14px', overflow: 'hidden', background: '#ececeb', aspectRatio: '4 / 3', marginBottom: '12px' }}>
                         {vehicle.image ? (
-                          <img src={vehicle.image} alt={`${vehicle.make} ${vehicle.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={resolveImageUrl(vehicle.image)} alt={`${vehicle.make} ${vehicle.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a0a0a0', fontSize: '13px' }}>
                             {vehicle.make} {vehicle.model}
