@@ -13,9 +13,9 @@ const getStoredUser = () => {
 };
 
 const CONTACT_DETAILS = [
-  { icon: MapPin, label: 'Address', value: '123 Premium Drive, Auto District, Bengaluru 560001' },
-  { icon: Phone, label: 'Phone', value: '+91 80 1234 5678' },
-  { icon: Mail, label: 'Email', value: 'hello@dealerhub.com' },
+  { icon: MapPin, label: 'Address', value: 'Chandigarh University, NH05, Mohali, Punjab, 140413' },
+  { icon: Phone, label: 'Phone', value: '+91 XXXXXXXXX' },
+  { icon: Mail, label: 'Email', value: 'priyanshu.kp1203@gmail.com' },
   { icon: Clock, label: 'Hours', value: 'Mon – Sat: 9:00 AM – 7:00 PM' },
 ];
 

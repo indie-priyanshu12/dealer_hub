@@ -84,15 +84,6 @@ const CompareTeaser = () => {
           transition={{ duration: 0.7, ease: EASE }}
           style={{ textAlign: 'center', marginBottom: '40px' }}
         >
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            padding: '8px 16px', borderRadius: '999px', marginBottom: '18px',
-            background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.18)',
-            color: '#2563EB', fontSize: '12px', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase',
-            fontFamily: "'Manrope', sans-serif",
-          }}>
-            <Scale size={14} /> Side-by-side comparison
-          </div>
           <h1 style={{
             fontFamily: "'Manrope', sans-serif", fontSize: 'clamp(34px, 5vw, 52px)', fontWeight: 800,
             color: '#1a2744', letterSpacing: '-1.5px', lineHeight: 1.1, margin: '0 0 14px',
