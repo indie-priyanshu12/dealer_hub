@@ -57,4 +57,15 @@ describe('Sidebar', () => {
     const compareLink = screen.getByRole('link', { name: /compare/i });
     expect(compareLink).toHaveTextContent('2');
   });
+
+  it('renders a Contact Us link pointing to /contact, positioned right before Logout', () => {
+    renderAt('/inventory');
+
+    const contactLink = screen.getByRole('link', { name: /contact us/i });
+    expect(contactLink).toHaveAttribute('href', '/contact');
+
+    const logoutButton = screen.getByRole('button', { name: /logout/i });
+    // DOCUMENT_POSITION_FOLLOWING = 4: contactLink comes before logoutButton in source order.
+    expect(contactLink.compareDocumentPosition(logoutButton) & 4).toBe(4);
+  });
 });

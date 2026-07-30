@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, Info } from 'lucide-react';
 import Navbar from '../components/Landing/Navbar';
+import DashboardLayout from '../components/Dashboard/DashboardLayout';
 import MagneticButton from '../components/MagneticButton';
+
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user'));
+  } catch {
+    return null;
+  }
+};
 
 const CONTACT_DETAILS = [
   { icon: MapPin, label: 'Address', value: '123 Premium Drive, Auto District, Bengaluru 560001' },
@@ -42,16 +51,15 @@ const focusHandlers = {
 // instead of faking a success state, per ux-guide.md's "never let users wonder."
 const ContactPage = () => {
   const [showNotice, setShowNotice] = useState(false);
+  const [user] = useState(getStoredUser);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setShowNotice(true);
   };
 
-  return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F8F8F6' }}>
-      <Navbar />
-
+  const content = (
+    <>
       <main className="contact-main" style={{ paddingTop: '84px', paddingBottom: '40px', maxWidth: '1200px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
         <div className="contact-heading" style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 28px' }}>
           <h1 style={{
@@ -197,6 +205,20 @@ const ContactPage = () => {
           .contact-message-textarea { height: 64px !important; }
         }
       `}</style>
+    </>
+  );
+
+  // Logged in: same Sidebar shell as the rest of the dashboard (Inventory, Compare,
+  // etc.) instead of the landing page's Navbar, so Contact doesn't feel like it
+  // dropped the user back out to the public site.
+  if (user) {
+    return <DashboardLayout>{content}</DashboardLayout>;
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', backgroundColor: '#F8F8F6' }}>
+      <Navbar />
+      {content}
     </div>
   );
 };

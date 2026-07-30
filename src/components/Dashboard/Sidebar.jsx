@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutGrid, GitCompare, LogOut } from 'lucide-react';
+import { LayoutGrid, GitCompare, Mail, LogOut } from 'lucide-react';
 import { useCompare } from '../../context/CompareContext';
 
 export const SIDEBAR_WIDTH = 240;
@@ -34,6 +34,7 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { compareIds } = useCompare();
+  const contactActive = isItemActive(location.pathname, '/contact');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -63,12 +64,43 @@ const Sidebar = () => {
       >
         <Link
           to="/inventory"
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', padding: '0 8px', marginBottom: '40px' }}
+          style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', padding: '0 8px', marginBottom: '24px', position: 'relative' }}
         >
-          <img src="/favicon.svg" alt="" style={{ width: '32px', height: '32px', flexShrink: 0 }} />
-          <span className="dh-sidebar-label" style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '18px', color: '#1a2744' }}>
-            DealerHub
-          </span>
+          {/* Collapsed rail (<900px): the full wordmark can't fit in 84px, so fall
+              back to the compact mark, matching how nav-item labels hide too. */}
+          <img
+            src="/favicon.svg"
+            alt="DealerHub"
+            className="dh-sidebar-logo-collapsed"
+            style={{ width: '32px', height: '32px', flexShrink: 0, display: 'none' }}
+          />
+          {/* Same asset + height as the landing navbar's logo (Navbar.jsx), so it
+              renders at an identical visual size. Absolutely positioned because the
+              SVG has large transparent padding above/below the actual wordmark. */}
+          <img
+            src="/text-logo.svg"
+            alt="DealerHub"
+            className="dh-sidebar-logo-expanded"
+            style={{
+              height: '153.6px', // 1.2x the navbar's 128px — sized up on its own; the
+              // reserved box below is untouched, so this doesn't move anything else.
+              width: 'auto',
+              maxWidth: 'none', // Tailwind's `img{max-width:100%}` preflight would
+              // otherwise cap this at the Link's own width, squashing the aspect ratio.
+              position: 'absolute',
+              top: '50%',
+              left: '-34px',
+              transform: 'translateY(-50%)',
+            }}
+          />
+          {/* text-logo.svg has large transparent padding above/below the actual
+              wordmark (it's only ~24% of the asset's own height) — reserving the
+              full 128px here would leave a big empty gap in the sidebar's layout,
+              unlike the navbar where the overflow is invisible either way. This
+              spacer reserves just enough for the visible mark; the image (still
+              128px tall, so the mark itself renders at the same size as the
+              navbar's) overflows the extra above/below without affecting layout. */}
+          <div className="dh-sidebar-logo-expanded" style={{ height: '40px', width: '180px', visibility: 'hidden' }} />
         </Link>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
@@ -107,6 +139,15 @@ const Sidebar = () => {
           })}
         </nav>
 
+        <Link
+          to="/contact"
+          aria-current={contactActive ? 'page' : undefined}
+          style={{ ...linkStyle(contactActive), marginBottom: '4px' }}
+        >
+          <Mail size={20} strokeWidth={2} style={{ flexShrink: 0 }} />
+          <span className="dh-sidebar-label">Contact Us</span>
+        </Link>
+
         <button
           onClick={handleLogout}
           style={{
@@ -134,6 +175,8 @@ const Sidebar = () => {
         @media (max-width: 900px) {
           .dh-sidebar { width: ${SIDEBAR_WIDTH_COLLAPSED}px !important; }
           .dh-sidebar-label { display: none !important; }
+          .dh-sidebar-logo-expanded { display: none !important; }
+          .dh-sidebar-logo-collapsed { display: block !important; }
         }
       `}</style>
     </>

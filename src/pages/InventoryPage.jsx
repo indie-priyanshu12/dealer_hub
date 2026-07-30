@@ -201,7 +201,7 @@ const InventoryPage = () => {
               margin: '0 0 8px 0',
               overflowWrap: 'anywhere',
             }}>
-              {user ? `Welcome back, ${user.email}` : 'Inventory'}
+              {user ? `Welcome back, ${user.name || user.email}` : 'Inventory'}
             </h1>
             <p style={{
               fontFamily: "'Manrope', sans-serif",
