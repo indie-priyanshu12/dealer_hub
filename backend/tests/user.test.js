@@ -25,9 +25,9 @@ afterEach(async () => {
 });
 
 describe('User Model Test', () => {
-  it('should validate required fields (email, password)', async () => {
+  it('should validate required fields (name, email, password)', async () => {
     const user = new User({});
-    
+
     let error;
     try {
       await user.validate();
@@ -36,6 +36,8 @@ describe('User Model Test', () => {
     }
 
     expect(error).toBeDefined();
+    expect(error.errors.name).toBeDefined();
+    expect(error.errors.name.message).toBe('Name is required');
     expect(error.errors.email).toBeDefined();
     expect(error.errors.email.message).toBe('Email is required');
     expect(error.errors.password).toBeDefined();
@@ -44,6 +46,7 @@ describe('User Model Test', () => {
 
   it('should reject duplicate emails', async () => {
     const userData = {
+      name: 'Test User',
       email: 'test@example.com',
       password: 'password123'
     };
@@ -66,13 +69,15 @@ describe('User Model Test', () => {
 
   it('should create a user successfully with valid inputs', async () => {
     const validUser = new User({
+      name: 'Valid User',
       email: 'valid@example.com',
       password: 'securepassword'
     });
-    
+
     const savedUser = await validUser.save();
-    
+
     expect(savedUser._id).toBeDefined();
+    expect(savedUser.name).toBe('Valid User');
     expect(savedUser.email).toBe('valid@example.com');
     expect(savedUser.password).not.toBe('securepassword');
     expect(savedUser.password.startsWith('$2b$')).toBe(true); // bcrypt signature

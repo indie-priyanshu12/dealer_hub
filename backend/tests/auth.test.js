@@ -28,6 +28,7 @@ afterEach(async () => {
 
 describe('Auth API Endpoints', () => {
   const testUser = {
+    name: 'Test Author',
     email: 'testauth@example.com',
     password: 'password123'
   };
@@ -41,8 +42,18 @@ describe('Auth API Endpoints', () => {
       expect(res.statusCode).toEqual(201);
       expect(res.body).toHaveProperty('token');
       expect(res.body).toHaveProperty('user');
+      expect(res.body.user.name).toBe(testUser.name);
       expect(res.body.user.email).toBe(testUser.email);
       expect(res.body.user.password).toBeUndefined(); // Ensure password is not returned
+    });
+
+    it('should always register as a regular User, ignoring any role sent in the request body', async () => {
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({ ...testUser, role: 'Admin' });
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body.user.role).toBe('User');
     });
 
     it('should not allow registering an existing email', async () => {

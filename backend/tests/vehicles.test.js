@@ -58,6 +58,7 @@ describe('Vehicle API Endpoints', () => {
   it('GET /api/vehicles should return all vehicles for an authenticated user', async () => {
     // Create a dummy user
     const user = await User.create({
+      name: 'Test Author',
       email: 'testauth@example.com',
       password: 'password123',
       role: 'User'
@@ -94,6 +95,7 @@ describe('POST /api/vehicles', () => {
 
   const getToken = async (role = 'User') => {
     const user = await User.create({
+      name: `Creator ${role}`,
       email: `creator-${role.toLowerCase()}@example.com`,
       password: 'password123',
       role,
@@ -197,6 +199,7 @@ describe('GET /api/vehicles/search', () => {
 
   const getAuthToken = async () => {
     const user = await User.create({
+      name: 'Searcher',
       email: 'searcher@example.com',
       password: 'password123',
       role: 'User',
@@ -277,6 +280,7 @@ describe('PUT /api/vehicles/:id', () => {
   // endpoint — restricted to Admin only per explicit user decision.
   const getToken = async (role = 'User') => {
     const user = await User.create({
+      name: `Updater ${role}`,
       email: `updater-${role.toLowerCase()}@example.com`,
       password: 'password123',
       role,
@@ -356,6 +360,7 @@ describe('PUT /api/vehicles/:id', () => {
 describe('DELETE /api/vehicles/:id', () => {
   const getToken = async (role = 'User') => {
     const user = await User.create({
+      name: `Deleter ${role}`,
       email: `deleter-${role.toLowerCase()}@example.com`,
       password: 'password123',
       role,
@@ -417,6 +422,7 @@ describe('DELETE /api/vehicles/:id', () => {
 describe('POST /api/vehicles/:id/purchase', () => {
   const getToken = async (role = 'User') => {
     const user = await User.create({
+      name: `Buyer ${role}`,
       email: `buyer-${role.toLowerCase()}@example.com`,
       password: 'password123',
       role,
@@ -480,6 +486,7 @@ describe('POST /api/vehicles/:id/purchase', () => {
 describe('POST /api/vehicles/:id/restock', () => {
   const getToken = async (role = 'User') => {
     const user = await User.create({
+      name: `Restocker ${role}`,
       email: `restocker-${role.toLowerCase()}@example.com`,
       password: 'password123',
       role,
@@ -569,6 +576,7 @@ describe('POST /api/vehicles/:id/restock', () => {
 describe('GET /api/vehicles/:id', () => {
   const getToken = async (role = 'User') => {
     const user = await User.create({
+      name: `Viewer ${role}`,
       email: `viewer-${role.toLowerCase()}@example.com`,
       password: 'password123',
       role,

@@ -52,38 +52,20 @@ const Field = ({ label, name, type = 'text', placeholder, value, icon: Icon, isP
             {label}
           </label>
 
-          {name === 'role' ? (
-            <select
-              name={name}
-              value={value}
-              onChange={onChange}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              style={{
-                width: '100%', border: 'none', outline: 'none', background: 'transparent',
-                color: '#1E293B', fontSize: '15px', fontWeight: '500', fontFamily: 'inherit',
-                appearance: 'none', cursor: 'pointer', padding: 0, margin: 0
-              }}
-            >
-              <option value="User">User</option>
-              <option value="Admin">Admin</option>
-            </select>
-          ) : (
-            <input
-              name={name}
-              type={isPassword && !showPassword ? 'password' : 'text'}
-              value={value}
-              onChange={onChange}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              placeholder={isFocused ? placeholder : ''}
-              style={{
-                width: '100%', border: 'none', outline: 'none', background: 'transparent',
-                color: '#1E293B', fontSize: '15px', fontWeight: '500', fontFamily: 'inherit',
-                padding: 0, margin: 0
-              }}
-            />
-          )}
+          <input
+            name={name}
+            type={isPassword && !showPassword ? 'password' : 'text'}
+            value={value}
+            onChange={onChange}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder={isFocused ? placeholder : ''}
+            style={{
+              width: '100%', border: 'none', outline: 'none', background: 'transparent',
+              color: '#1E293B', fontSize: '15px', fontWeight: '500', fontFamily: 'inherit',
+              padding: 0, margin: 0
+            }}
+          />
         </div>
 
         {isPassword && (
@@ -111,10 +93,10 @@ const Field = ({ label, name, type = 'text', placeholder, value, icon: Icon, isP
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    role: 'User'
+    confirmPassword: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -174,7 +156,7 @@ const Auth = () => {
     setError('');
 
     // Basic client validation
-    if (!formData.email || !formData.password) {
+    if (!formData.email || !formData.password || (!isLogin && !formData.name)) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -189,7 +171,7 @@ const Auth = () => {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const payload = isLogin
         ? { email: formData.email, password: formData.password }
-        : { email: formData.email, password: formData.password, role: formData.role };
+        : { name: formData.name, email: formData.email, password: formData.password };
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
@@ -508,8 +490,8 @@ const Auth = () => {
                         transition={{ duration: 0.35, ease: EASE }}
                         style={{ overflow: 'hidden' }}
                       >
+                        <Field label="Full Name" name="name" placeholder="John Doe" value={formData.name} icon={User} onChange={handleInputChange} />
                         <Field label="Confirm Password" name="confirmPassword" isPassword placeholder="Re-enter password" value={formData.confirmPassword} icon={ShieldCheck} onChange={handleInputChange} />
-                        <Field label="Account Role" name="role" type="select" value={formData.role} icon={User} onChange={handleInputChange} />
                       </motion.div>
                     )}
                   </AnimatePresence>

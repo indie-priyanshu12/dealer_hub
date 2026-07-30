@@ -10,7 +10,7 @@ const generateToken = (id, role) => {
 
 export const register = async (req, res, next) => {
   try {
-    const { email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -18,17 +18,21 @@ export const register = async (req, res, next) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create user
+    // Create user. Role is never taken from the request body — every
+    // self-registration is a regular User; Admin accounts are seeded
+    // server-side from ADMIN_EMAIL/ADMIN_PASSWORD (see utils/seedAdminUser.js).
     const user = await User.create({
+      name,
       email,
       password,
-      role: role || 'User'
+      role: 'User'
     });
 
     if (user) {
       res.status(201).json({
         user: {
           _id: user._id,
+          name: user.name,
           email: user.email,
           role: user.role
         },
@@ -54,6 +58,7 @@ export const login = async (req, res, next) => {
       res.json({
         user: {
           _id: user._id,
+          name: user.name,
           email: user.email,
           role: user.role
         },
