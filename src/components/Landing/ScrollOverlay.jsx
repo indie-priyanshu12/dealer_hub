@@ -104,7 +104,7 @@ const ScrollOverlay = ({ showScrollHint }) => {
             </MagneticButton>
 
             <MagneticButton
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/auth?mode=register')}
               whileHover={{ backgroundColor: 'rgba(26,39,68,0.06)' }}
               transition={{ duration: 0.25, ease: EASE }}
               style={{

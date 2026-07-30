@@ -151,6 +151,7 @@ const SpecialOffersPage = () => {
         <h1 style={{
           fontFamily: "'Manrope', sans-serif", fontSize: 'clamp(34px, 5vw, 52px)', fontWeight: 800,
           color: '#1a2744', letterSpacing: '-1.5px', lineHeight: 1.1, margin: '0 0 14px',
+          marginTop: '-20px'
         }}>
           Special Offers
         </h1>

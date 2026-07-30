@@ -68,7 +68,8 @@ const ContactPage = () => {
             fontWeight: 800,
             color: '#1a2744',
             letterSpacing: '-1px',
-            margin: '0 0 16px',
+            margin: '0 0 1px',
+            marginTop: '20px'
           }}>
             Get in Touch
           </h1>

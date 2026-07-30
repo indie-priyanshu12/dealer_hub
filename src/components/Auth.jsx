@@ -1,4 +1,5 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, ShieldCheck, AlertCircle, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
 import MagneticButton from './MagneticButton';
@@ -91,7 +92,17 @@ const Field = ({ label, name, type = 'text', placeholder, value, icon: Icon, isP
 };
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  // "Join Free" CTAs land here with ?mode=register so they open on the Register
+  // tab; plain "Login"/"Sign In" links carry no param and default to Login.
+  const [searchParams] = useSearchParams();
+  const wantsRegister = searchParams.get('mode') === 'register';
+  const [isLogin, setIsLogin] = useState(!wantsRegister);
+
+  // Also honor the param if it changes while this page is already mounted
+  // (e.g. browser back/forward between /auth and /auth?mode=register).
+  useEffect(() => {
+    setIsLogin(!wantsRegister);
+  }, [wantsRegister]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -264,6 +275,22 @@ const Auth = () => {
         gap: '24px',
         position: 'relative',
       }}>
+
+        {/* ── Mobile-only brand header: replaces the hero image panel on phones.
+            Mobile-first display + min-width hide, so it stays in the a11y tree.
+            The wordmark sits centered inside text-logo.svg's large transparent
+            canvas, so a short wrapper + oversized absolutely-centered image shows
+            just the mark without the asset's padding forcing a tall header. ── */}
+        <div className="auth-mobile-logo" style={{ display: 'flex', justifyContent: 'center', height: '52px', position: 'relative', flexShrink: 0, overflow: 'visible' }}>
+          <img
+            src="/text-logo.svg"
+            alt="DealerHub"
+            style={{
+              height: '170px', width: 'auto', maxWidth: 'none',
+              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            }}
+          />
+        </div>
 
         {/* ── Hero Image Panel (swaps side via flex `order` + layout FLIP) ── */}
         <motion.div
@@ -556,10 +583,14 @@ const Auth = () => {
       <style>{`
         @media (max-width: 900px) {
           .auth-shell { flex-direction: column !important; padding: 24px !important; gap: 16px !important; }
-          .auth-hero { flex: 0 0 220px !important; }
+          /* No hero image on phones — the text-logo header above stands in for it. */
+          .auth-hero { display: none !important; }
           .auth-form-container { flex: 1 1 auto !important; }
           .auth-card-wrap { padding: 0 !important; max-width: 100% !important; }
           .auth-card { padding: 32px 24px !important; }
+        }
+        @media (min-width: 901px) {
+          .auth-mobile-logo { display: none !important; }
         }
         /* Tightens vertical rhythm on short viewports only — normal-height screens
            keep the spacing above untouched. Keeps Register from ever forcing a

@@ -41,7 +41,9 @@ const Navbar = () => {
   const handleCTAClick = (key) => {
     setLaunching(key);
     setMenuOpen(false);
-    setTimeout(() => navigate('/auth'), LAUNCH_DELAY);
+    // "Join Free" means signing up — land on the Register tab, not Login.
+    const target = key === 'join' ? '/auth?mode=register' : '/auth';
+    setTimeout(() => navigate(target), LAUNCH_DELAY);
   };
 
   const handleLogout = () => {
