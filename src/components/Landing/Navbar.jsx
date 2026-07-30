@@ -14,7 +14,7 @@ const NAV_LINKS = [
   { label: 'Compare', href: '#compare' },
   { label: 'New Arrivals', href: '#new-arrivals' },
   { label: 'Special Offers', href: '#special-offers' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 const Navbar = () => {

@@ -5,6 +5,7 @@ import Auth from './components/Auth';
 import InventoryPage from './pages/InventoryPage';
 import VehicleDetailsPage from './pages/VehicleDetailsPage';
 import ComparePage from './pages/ComparePage';
+import ContactPage from './pages/ContactPage';
 import CustomScrollbar from './components/CustomScrollbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
@@ -58,6 +59,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/contact" element={<ContactPage />} />
           </Routes>
         </div>
       </CompareProvider>
