@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { CompareProvider } from '../../context/CompareContext';
 import Sidebar from './Sidebar';
@@ -72,6 +72,34 @@ describe('Sidebar', () => {
 
     expect(screen.getByRole('link', { name: /customer orders/i })).toHaveAttribute('href', '/admin/purchases');
     expect(screen.queryByRole('link', { name: /^purchases$/i })).not.toBeInTheDocument();
+  });
+
+  it('renders the mobile header with a hamburger and the Dealer Hub wordmark', () => {
+    renderAt('/inventory');
+
+    expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument();
+    expect(screen.getByText(/dealer hub/i)).toBeInTheDocument();
+  });
+
+  it('opens the full-page drawer from the hamburger and closes it again', () => {
+    renderAt('/inventory');
+
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
+    const drawer = screen.getByRole('dialog', { name: /menu/i });
+    expect(within(drawer).getByRole('link', { name: /inventory/i })).toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: /logout/i })).toBeInTheDocument();
+
+    fireEvent.click(within(drawer).getByRole('button', { name: /close menu/i }));
+    expect(screen.queryByRole('dialog', { name: /menu/i })).not.toBeInTheDocument();
+  });
+
+  it('closes the drawer when a nav link inside it is clicked', () => {
+    renderAt('/inventory');
+
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
+    fireEvent.click(within(screen.getByRole('dialog', { name: /menu/i })).getByRole('link', { name: /^compare$/i }));
+
+    expect(screen.queryByRole('dialog', { name: /menu/i })).not.toBeInTheDocument();
   });
 
   it('renders a Contact Us link pointing to /contact, positioned right before Logout', () => {

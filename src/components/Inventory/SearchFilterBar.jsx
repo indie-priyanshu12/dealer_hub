@@ -171,8 +171,10 @@ const SearchFilterBar = ({
   const sortIsActive = Boolean(committedSort);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+    // position:relative so that on mobile (where the trigger wrappers turn static)
+    // the popovers anchor to this whole row instead of a mid-row trigger.
+    <div className="dh-sfb-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', position: 'relative' }}>
+      <div className="dh-sfb-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
         <div style={{
           flex: '1 1 260px',
           display: 'flex', alignItems: 'center', gap: '10px',
@@ -196,13 +198,14 @@ const SearchFilterBar = ({
           />
         </div>
 
-        <div ref={filterRef} style={{ position: 'relative' }}>
+        <div ref={filterRef} className="dh-sfb-anchor" style={{ position: 'relative' }}>
           <TriggerButton label="Filters" count={activeFilterCount} active={filterOpen || activeFilterCount > 0} onClick={openFilters} />
           <motion.div
             {...panelAnimateProps(filterOpen)}
+            className="dh-sfb-panel"
             style={{ ...panelStyle, width: '320px', padding: '20px', pointerEvents: filterOpen ? 'auto' : 'none' }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div className="dh-sfb-panel-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <div>
                 <label style={labelStyle}>Category</label>
                 <select
@@ -255,7 +258,7 @@ const SearchFilterBar = ({
           </motion.div>
         </div>
 
-        <div ref={sortRef} style={{ position: 'relative' }}>
+        <div ref={sortRef} className="dh-sfb-anchor" style={{ position: 'relative' }}>
           <TriggerButton
             label={sortIsActive ? activeSortLabel : 'Sort'}
             count={0}
@@ -264,6 +267,7 @@ const SearchFilterBar = ({
           />
           <motion.div
             {...panelAnimateProps(sortOpen)}
+            className="dh-sfb-panel"
             style={{ ...panelStyle, width: '240px', padding: '12px', pointerEvents: sortOpen ? 'auto' : 'none' }}
           >
             {SORT_OPTIONS.map((opt) => (
@@ -305,6 +309,20 @@ const SearchFilterBar = ({
           <X size={16} /> Reset
         </button>
       )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          /* Search + trigger buttons can't share one phone-width row — wrap instead
+             of shoving the triggers (and their popovers) past the viewport edge. */
+          .dh-sfb-row { flex-wrap: wrap; }
+          /* Un-position the trigger wrappers so the popovers anchor to the whole
+             row (the nearest positioned ancestor) and span the content width,
+             instead of hanging off a mid-row trigger and past the viewport. */
+          .dh-sfb-anchor { position: static !important; }
+          .dh-sfb-panel { width: min(320px, calc(100vw - 48px)) !important; left: 0 !important; right: auto !important; }
+          .dh-sfb-panel-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 };

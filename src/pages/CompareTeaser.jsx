@@ -77,7 +77,7 @@ const CompareTeaser = () => {
     <div style={{ minHeight: '100vh', backgroundColor: '#F8F8F6' }}>
       <Navbar />
 
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '140px 48px 80px' }}>
+      <main className="dh-cmp-main" style={{ maxWidth: '1000px', margin: '0 auto', padding: '140px 48px 80px' }}>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -111,8 +111,8 @@ const CompareTeaser = () => {
               boxShadow: '0 20px 60px rgba(0,0,0,0.07)', overflow: 'hidden',
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: '160px repeat(2, minmax(0, 1fr))' }}>
-              <div />
+            <div className="dh-cmp-head" style={{ display: 'grid', gridTemplateColumns: '160px repeat(2, minmax(0, 1fr))' }}>
+              <div className="dh-cmp-spacer" />
               {pair.map((vehicle) => (
                 <div key={vehicle.id} style={{ padding: '20px 16px 0' }}>
                   <div style={{ borderRadius: '16px', overflow: 'hidden', background: '#ececeb', aspectRatio: '16 / 10' }}>
@@ -137,7 +137,7 @@ const CompareTeaser = () => {
                 <tbody>
                   {SPEC_ROWS.map(({ label, render }) => (
                     <tr key={label}>
-                      <td style={{ ...labelCellStyle, width: '160px' }}>{label}</td>
+                      <td className="dh-cmp-label" style={{ ...labelCellStyle, width: '160px' }}>{label}</td>
                       {pair.map((vehicle) => (
                         <td key={vehicle.id} style={cellStyle}>{render(vehicle)}</td>
                       ))}
@@ -194,6 +194,17 @@ const CompareTeaser = () => {
           </p>
         </div>
       </main>
+
+      <style>{`
+        @media (max-width: 680px) {
+          .dh-cmp-main { padding: 110px 20px 60px !important; }
+          /* The 160px label spacer starved the two car columns of width on phones
+             (images collapsed to 0px) — drop it and let the pair share the row. */
+          .dh-cmp-head { grid-template-columns: 1fr 1fr !important; }
+          .dh-cmp-spacer { display: none !important; }
+          .dh-cmp-label { width: 90px !important; min-width: 90px; }
+        }
+      `}</style>
     </div>
   );
 };

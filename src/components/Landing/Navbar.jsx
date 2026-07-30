@@ -57,7 +57,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav style={{
+      <nav className="dh-nav" style={{
         position: 'fixed',
         top: 0,
         left: 0,
@@ -85,6 +85,7 @@ const Navbar = () => {
           <img
             src="/text-logo.svg"
             alt="DealerHub"
+            className="nav-logo-img"
             style={{
               height: '128px',
               width: 'auto',
@@ -96,7 +97,7 @@ const Navbar = () => {
             }}
           />
           {/* Invisible spacer so other flex items respect logo width */}
-          <div style={{ height: '128px', width: '220px', visibility: 'hidden' }} />
+          <div className="nav-logo-spacer" style={{ height: '128px', width: '220px', visibility: 'hidden' }} />
         </Link>
 
         {/* ── Nav Links (Desktop) ── */}
@@ -150,6 +151,9 @@ const Navbar = () => {
 
         {/* ── Action Buttons ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Hidden on mobile — the drawer carries Login/Join Free/Logout there,
+              and the top bar hasn't room for them next to the logo. */}
+          <div className="nav-cta-desktop" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {isLoggedIn ? (
             <MagneticButton
               onClick={handleLogout}
@@ -236,6 +240,7 @@ const Navbar = () => {
               </MagneticButton>
             </>
           )}
+          </div>
 
           {/* Mobile hamburger */}
           <button
@@ -351,6 +356,13 @@ const Navbar = () => {
         @media (max-width: 768px) {
           .nav-desktop { display: none !important; }
           .nav-hamburger { display: flex !important; }
+          /* The 220px logo spacer + two CTAs cannot share a phone-width row with the
+             hamburger — at 375px they pushed the hamburger fully offscreen. The drawer
+             carries the CTAs on mobile; the top bar keeps only logo + hamburger. */
+          .nav-cta-desktop { display: none !important; }
+          .dh-nav { padding: 0 20px !important; }
+          .nav-logo-img { height: 92px !important; }
+          .nav-logo-spacer { width: 150px !important; height: 92px !important; }
         }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-10px); }

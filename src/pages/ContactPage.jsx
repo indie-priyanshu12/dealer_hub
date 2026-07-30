@@ -83,7 +83,7 @@ const ContactPage = () => {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.3fr)', gap: '48px' }}>
+        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.3fr)', gap: '48px' }}>
           <div>
             <h2 style={{
               fontFamily: "'Manrope', sans-serif",
@@ -126,7 +126,7 @@ const ContactPage = () => {
             padding: '28px',
           }}>
             <form onSubmit={handleSubmit}>
-              <div className="contact-field-gap" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+              <div className="contact-field-gap contact-name-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
                 <div>
                   <label style={labelStyle}>Full Name</label>
                   <input type="text" placeholder="Jane Doe" style={fieldStyle} {...focusHandlers} />
@@ -203,6 +203,15 @@ const ContactPage = () => {
           .contact-form-card { padding: 20px !important; }
           .contact-field-gap { margin-bottom: 10px !important; }
           .contact-message-textarea { height: 64px !important; }
+        }
+        /* Narrow screens: info panel and form stack instead of splitting a width
+           that can't hold two columns (form inputs collapsed to ~40px on phones). */
+        @media (max-width: 900px) {
+          .contact-main { padding-left: 20px !important; padding-right: 20px !important; }
+          .contact-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+        }
+        @media (max-width: 560px) {
+          .contact-name-row { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </>

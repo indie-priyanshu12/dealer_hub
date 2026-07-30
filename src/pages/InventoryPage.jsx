@@ -35,6 +35,21 @@ const InventoryPage = () => {
   // typing should wait out the debounce below.
   const skipDebounceRef = useRef(false);
 
+  // Phone widths can't hold the horizontal list card (it forced ~200px of page
+  // overflow at 375px) — below 768px (the app's mobile breakpoint) everything
+  // renders as single-column grid cards and the List/Grid toggle disappears.
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 768px)').matches
+  );
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return undefined;
+    const mq = window.matchMedia('(max-width: 768px)');
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  const effectiveViewMode = isMobile ? 'grid' : viewMode;
+
   const hasActiveFilters = Object.keys(DEFAULT_FILTERS).some((key) => filters[key] !== DEFAULT_FILTERS[key]);
 
   const handleSearchChange = (value) => {
@@ -190,11 +205,11 @@ const InventoryPage = () => {
   return (
     <DashboardLayout>
       <main style={{ paddingTop: '48px', paddingBottom: '100px', maxWidth: '1400px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px', marginBottom: '40px', flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0 }}>
             <h1 style={{
               fontFamily: "'Manrope', sans-serif",
-              fontSize: '48px',
+              fontSize: 'clamp(30px, 5.5vw, 48px)',
               fontWeight: 800,
               color: '#1a2744',
               letterSpacing: '-1px',
@@ -215,7 +230,7 @@ const InventoryPage = () => {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
             {isAdmin && <VehicleFormModal onSaved={handleVehicleCreated} />}
-            <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+            {!isMobile && <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />}
           </div>
         </div>
 
@@ -310,7 +325,9 @@ const InventoryPage = () => {
               // minmax(0, 1fr), not bare 1fr — grid tracks default to a min width equal
               // to their content's intrinsic size, so without this a card that doesn't
               // want to shrink pushes the whole grid past the container instead of wrapping.
-              gridTemplateColumns: viewMode === 'grid' ? 'repeat(3, minmax(0, 1fr))' : 'minmax(0, 1fr)',
+              gridTemplateColumns: isMobile
+                ? 'minmax(0, 1fr)'
+                : effectiveViewMode === 'grid' ? 'repeat(3, minmax(0, 1fr))' : 'minmax(0, 1fr)',
               gap: '24px',
               pointerEvents: searching ? 'none' : 'auto',
             }}
@@ -329,7 +346,7 @@ const InventoryPage = () => {
               >
                 <VehicleCard
                   vehicle={vehicle}
-                  viewMode={viewMode}
+                  viewMode={effectiveViewMode}
                   isAdmin={isAdmin}
                   onPurchase={handleVehicleUpdated}
                   onDelete={handleVehicleDeleted}

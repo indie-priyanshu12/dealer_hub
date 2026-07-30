@@ -62,11 +62,11 @@ const InventoryTeaser = () => {
     <div style={{ minHeight: '100vh', backgroundColor: '#F8F8F6', paddingBottom: '100px' }}>
       <Navbar />
 
-      <main style={{ paddingTop: '96px', maxWidth: '1400px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
+      <main className="dh-teaser-main" style={{ paddingTop: '96px', maxWidth: '1400px', margin: '0 auto', paddingLeft: '48px', paddingRight: '48px' }}>
         <div style={{ marginBottom: '40px' }}>
           <h1 style={{
             fontFamily: "'Manrope', sans-serif",
-            fontSize: '48px',
+            fontSize: 'clamp(32px, 6vw, 48px)',
             fontWeight: 800,
             color: '#1a2744',
             letterSpacing: '-1px',
@@ -86,14 +86,14 @@ const InventoryTeaser = () => {
 
         {!loading && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '24px', marginBottom: '24px' }}>
+            <div className="dh-teaser-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '24px', marginBottom: '24px' }}>
               {visible.map((vehicle) => (
                 <GatedCard key={vehicle.vehicleId} vehicle={vehicle} onGate={goToSignIn} />
               ))}
             </div>
 
             <div style={{ position: 'relative' }}>
-              <div style={{
+              <div className="dh-teaser-grid" style={{
                 display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '24px',
                 filter: 'blur(10px)', opacity: 0.55, pointerEvents: 'none', userSelect: 'none',
               }} aria-hidden="true">
@@ -161,6 +161,16 @@ const InventoryTeaser = () => {
           </>
         )}
       </main>
+
+      <style>{`
+        @media (max-width: 1000px) {
+          .dh-teaser-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        }
+        @media (max-width: 640px) {
+          .dh-teaser-grid { grid-template-columns: 1fr !important; }
+          .dh-teaser-main { padding-left: 20px !important; padding-right: 20px !important; }
+        }
+      `}</style>
     </div>
   );
 };

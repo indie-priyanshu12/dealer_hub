@@ -142,7 +142,7 @@ const VehicleDetailsPage = () => {
             </Link>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'start' }}>
+          <div className="dh-details-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '48px', alignItems: 'start' }}>
             <div>
               <VehicleGallery vehicle={vehicle} />
             </div>

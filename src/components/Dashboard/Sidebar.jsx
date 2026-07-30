@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutGrid, GitCompare, ShoppingBag, ClipboardList, Mail, LogOut } from 'lucide-react';
+import { LayoutGrid, GitCompare, ShoppingBag, ClipboardList, Mail, LogOut, Menu, X } from 'lucide-react';
 import { useCompare } from '../../context/CompareContext';
 
 export const SIDEBAR_WIDTH = 240;
@@ -54,15 +54,140 @@ const Sidebar = () => {
   const contactActive = isItemActive(location.pathname, '/contact');
   const isAdmin = getStoredUser()?.role === 'Admin';
   const navItems = [...NAV_ITEMS, ...(isAdmin ? ADMIN_NAV_ITEMS : USER_NAV_ITEMS)];
+  // Phone layout: the rail is replaced by a fixed header whose hamburger opens a
+  // full-page glass drawer. Conditional mount (no AnimatePresence — see the project's
+  // history with stuck exit-unmounts); the slide-in is a mount-time keyframe.
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setMobileOpen(false);
     navigate('/');
   };
 
+  const renderBadge = (label) => {
+    const badgeCount = label === 'Compare' ? compareIds.length : 0;
+    if (badgeCount === 0) return null;
+    return (
+      <span style={{
+        position: 'absolute', top: '-6px', right: '-6px',
+        background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: 700,
+        borderRadius: '999px', minWidth: '16px', height: '16px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '0 3px', lineHeight: 1,
+      }}>
+        {badgeCount}
+      </span>
+    );
+  };
+
+  const wordmark = (
+    <span style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '19px', color: '#1a2744', letterSpacing: '-0.5px' }}>
+      Dealer Hub<span style={{ color: '#3B82F6' }}>.</span>
+    </span>
+  );
+
   return (
     <>
+      {/* ── Mobile header: hamburger + brand, shown only below 768px ── */}
+      {/* Mobile-first display (flex inline, hidden by the min-width rule below) so
+          the header exists in the accessibility tree — display:none flipped on by a
+          media query would hide it from assistive tech and tests alike in jsdom. */}
+      <header
+        className="dh-mobile-header"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, height: '60px', zIndex: 100,
+          display: 'flex', alignItems: 'center', gap: '12px', padding: '0 16px',
+          background: 'rgba(248, 248, 246, 0.85)',
+          backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+          borderBottom: '1.5px solid rgba(0,0,0,0.08)',
+        }}
+      >
+        <button
+          aria-label="Open menu"
+          onClick={() => setMobileOpen(true)}
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#1a2744', padding: '6px', display: 'flex' }}
+        >
+          <Menu size={24} strokeWidth={2.2} />
+        </button>
+        <img src="/favicon.svg" alt="" style={{ width: '28px', height: '28px' }} />
+        {wordmark}
+      </header>
+
+      {/* ── Full-page glass drawer (mobile) ── */}
+      {mobileOpen && (
+        <div
+          role="dialog"
+          aria-label="Menu"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(248, 248, 246, 0.92)',
+            backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+            display: 'flex', flexDirection: 'column', padding: '16px',
+            animation: 'dh-drawer-in 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+            fontFamily: "'Manrope', sans-serif",
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '4px 0 16px', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+            <img src="/favicon.svg" alt="" style={{ width: '28px', height: '28px' }} />
+            {wordmark}
+            <button
+              aria-label="Close menu"
+              onClick={() => setMobileOpen(false)}
+              style={{ marginLeft: 'auto', background: 'rgba(26,39,68,0.06)', border: 'none', cursor: 'pointer', color: '#1a2744', padding: '8px', borderRadius: '12px', display: 'flex' }}
+            >
+              <X size={22} strokeWidth={2.2} />
+            </button>
+          </div>
+
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, marginTop: '20px' }}>
+            {navItems.map(({ label, href, icon: Icon }) => {
+              const active = isItemActive(location.pathname, href);
+              return (
+                <Link
+                  key={href}
+                  to={href}
+                  onClick={() => setMobileOpen(false)}
+                  aria-current={active ? 'page' : undefined}
+                  style={{ ...linkStyle(active), fontSize: '16px', padding: '14px 16px' }}
+                >
+                  <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }}>
+                    <Icon size={21} strokeWidth={2} />
+                    {renderBadge(label)}
+                  </span>
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <Link
+            to="/contact"
+            onClick={() => setMobileOpen(false)}
+            aria-current={contactActive ? 'page' : undefined}
+            style={{ ...linkStyle(contactActive), fontSize: '16px', padding: '14px 16px', marginBottom: '4px' }}
+          >
+            <Mail size={21} strokeWidth={2} style={{ flexShrink: 0 }} />
+            Contact Us
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '12px',
+              padding: '14px 16px', borderRadius: '14px', border: 'none',
+              background: 'transparent', cursor: 'pointer',
+              fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: '16px',
+              color: '#EF4444', textAlign: 'left',
+            }}
+          >
+            <LogOut size={21} strokeWidth={2} style={{ flexShrink: 0 }} />
+            Logout
+          </button>
+        </div>
+      )}
+
       <aside
         className="dh-sidebar"
         style={{
@@ -125,32 +250,11 @@ const Sidebar = () => {
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
           {navItems.map(({ label, href, icon: Icon }) => {
             const active = isItemActive(location.pathname, href);
-            const badgeCount = label === 'Compare' ? compareIds.length : 0;
             return (
               <Link key={href} to={href} aria-current={active ? 'page' : undefined} style={linkStyle(active)}>
                 <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }}>
                   <Icon size={20} strokeWidth={2} />
-                  {badgeCount > 0 && (
-                    <span style={{
-                      position: 'absolute',
-                      top: '-6px',
-                      right: '-6px',
-                      background: '#EF4444',
-                      color: '#fff',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      borderRadius: '999px',
-                      minWidth: '16px',
-                      height: '16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '0 3px',
-                      lineHeight: 1,
-                    }}>
-                      {badgeCount}
-                    </span>
-                  )}
+                  {renderBadge(label)}
                 </span>
                 <span className="dh-sidebar-label">{label}</span>
               </Link>
@@ -191,11 +295,23 @@ const Sidebar = () => {
       </aside>
 
       <style>{`
+        @keyframes dh-drawer-in {
+          from { opacity: 0; transform: translateX(-24px); }
+          to { opacity: 1; transform: none; }
+        }
         @media (max-width: 900px) {
           .dh-sidebar { width: ${SIDEBAR_WIDTH_COLLAPSED}px !important; }
           .dh-sidebar-label { display: none !important; }
           .dh-sidebar-logo-expanded { display: none !important; }
           .dh-sidebar-logo-collapsed { display: block !important; }
+        }
+        /* Phones: no rail at all — a fixed header with a hamburger replaces it,
+           and the drawer above takes the full page when opened. */
+        @media (max-width: 768px) {
+          .dh-sidebar { display: none !important; }
+        }
+        @media (min-width: 769px) {
+          .dh-mobile-header { display: none !important; }
         }
       `}</style>
     </>
