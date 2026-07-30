@@ -64,13 +64,18 @@ function getScenePose(scrollProgress) {
 // Ambient cursor-tilt parallax is the only thing left time-based, so it feels soft.
 const PARALLAX_DAMP = 4;
 
+// The current hero model — the only asset in public/car_models/. If it's ever
+// swapped, update this path in the same commit: a URL pointing at a deleted model
+// is exactly the failure ModelErrorBoundary below exists to contain.
+const MODEL_URL = '/car_models/bmw_e34_stance_style.glb';
+
 // Poses above are tuned against a ~16:9 viewport. On narrower screens the same world-x
 // would push the car off-frame, so x compresses toward center (and the car shrinks a
 // touch) as the aspect ratio drops — full effect on desktop, centered-and-smaller on phones.
 const POSE_TUNED_ASPECT = 1.7;
 
 const VehicleModel = ({ scrollProgressRef }) => {
-  const { scene: rawScene } = useGLTF('/car_models/bmw_e34_stance_style.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
+  const { scene: rawScene } = useGLTF(MODEL_URL, 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
   const positionRef = useRef();
   const rotationRef = useRef();
 
@@ -171,7 +176,30 @@ const VehicleModel = ({ scrollProgressRef }) => {
   );
 };
 
-useGLTF.preload('/car_models/bmw_e34_stance_style.glb');
+useGLTF.preload(MODEL_URL);
+
+// A missing/corrupt GLB rejects inside Suspense, and an uncaught loader error unmounts
+// the entire React tree — the whole landing page white-screens over one asset. (This
+// actually happened when the model file was replaced.) Catching it here means the page
+// simply renders without the car instead.
+class ModelErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { failed: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error) {
+    console.error('Landing car model failed to load — rendering the page without it.', error);
+  }
+
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 const CanvasBackground = ({ scrollProgressRef }) => {
   return (
@@ -182,13 +210,15 @@ const CanvasBackground = ({ scrollProgressRef }) => {
     >
       {/* Outside Suspense — no async assets, so particles appear instantly while the GLB loads */}
       <ParticlesField />
-      <Suspense fallback={null}>
-        <ambientLight intensity={0.5} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
-        <directionalLight position={[-10, 10, -10]} intensity={0.5} />
-        <Environment preset="city" blur={0.8} />
-        <VehicleModel scrollProgressRef={scrollProgressRef} />
-      </Suspense>
+      <ModelErrorBoundary>
+        <Suspense fallback={null}>
+          <ambientLight intensity={0.5} />
+          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+          <directionalLight position={[-10, 10, -10]} intensity={0.5} />
+          <Environment preset="city" blur={0.8} />
+          <VehicleModel scrollProgressRef={scrollProgressRef} />
+        </Suspense>
+      </ModelErrorBoundary>
     </Canvas>
   );
 };
