@@ -48,7 +48,9 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div style={{ backgroundColor: '#F8F8F6', minHeight: '700vh', position: 'relative', overflowX: 'hidden' }}>
+    // Height comes from the overlay's own scenes — no hardcoded page height to drift
+    // out of sync with the scene count.
+    <div style={{ backgroundColor: '#F8F8F6', position: 'relative', overflowX: 'hidden' }}>
 
       {/* Fixed Navbar — above everything */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100 }}>
@@ -60,8 +62,9 @@ const LandingPage = () => {
         <CanvasBackground scrollProgressRef={scrollProgressRef} />
       </div>
 
-      {/* HTML Story Overlay */}
-      <div style={{ position: 'relative', zIndex: 1, pointerEvents: 'none' }}>
+      {/* HTML Story Overlay — must stay interactive: an earlier version set
+          pointer-events:none here, which silently made every CTA unclickable. */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
         <ScrollOverlay showScrollHint={showScrollHint} />
       </div>
 
