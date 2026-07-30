@@ -4,6 +4,7 @@ import VehicleCard from '../components/Inventory/VehicleCard';
 import ViewToggle from '../components/Inventory/ViewToggle';
 import SearchFilterBar from '../components/Inventory/SearchFilterBar';
 import VehicleFormModal from '../components/Inventory/VehicleFormModal';
+import InventoryTeaser from './InventoryTeaser';
 import { API_BASE_URL } from '../config/api';
 import { motion } from 'framer-motion';
 
@@ -71,6 +72,10 @@ const InventoryPage = () => {
   };
 
   useEffect(() => {
+    // No token to send — skip entirely rather than let the request 401 and bounce
+    // to /auth. The logged-out teaser below fetches its own (public) preview data.
+    if (!user) return;
+
     const controller = new AbortController();
     const isInitial = isFirstLoad.current;
     const skipDebounce = skipDebounceRef.current;
@@ -170,10 +175,17 @@ const InventoryPage = () => {
       clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [filters]);
+  }, [filters, user]);
 
   const noVehiclesAtAll = !loading && !error && vehicles.length === 0 && !hasActiveFilters;
   const noSearchResults = !loading && !error && vehicles.length === 0 && hasActiveFilters;
+
+  // All hooks above run unconditionally either way — only the render branches here,
+  // so this doesn't violate the Rules of Hooks. Logged-out visitors get a limited,
+  // sign-in-gated preview (its own component) instead of the full dashboard shell.
+  if (!user) {
+    return <InventoryTeaser />;
+  }
 
   return (
     <DashboardLayout>

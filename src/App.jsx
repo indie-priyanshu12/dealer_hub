@@ -35,14 +35,9 @@ function App() {
                 </PublicOnlyRoute>
               }
             />
-            <Route
-              path="/inventory"
-              element={
-                <ProtectedRoute>
-                  <InventoryPage />
-                </ProtectedRoute>
-              }
-            />
+            {/* Not wrapped in ProtectedRoute: InventoryPage itself shows a limited,
+                sign-in-gated teaser when logged out instead of bouncing to /auth. */}
+            <Route path="/inventory" element={<InventoryPage />} />
             <Route
               path="/inventory/:id"
               element={
