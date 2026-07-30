@@ -1,9 +1,14 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import app from './app.js';
 import { seedAdminUser } from './utils/seedAdminUser.js';
 
-dotenv.config({ path: '../.env.local' });
+// Resolve .env.local from this file's location (repo root), not the CWD — so
+// `npm start` from the root and `node server.js` from backend/ both load it.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '../.env.local') });
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dealer_hub';
