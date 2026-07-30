@@ -203,14 +203,14 @@ Coverage highlights: every endpoint's happy path, auth failures (401/403), valid
 
 ## My AI Usage (also see [PROMPTS.md](PROMPTS.md))
 
-1. Which AI tools were used
+#### 1. Which AI tools were used
 Claude (Anthropic) — primary development assistant across the whole project. Used for backend API design and TDD implementation, the React frontend, MongoDB schema/data work, the three.js/React Three Fiber landing page animation, styling and responsive-design passes, debugging, security review, deployment/CORS troubleshooting, and repo cleanup.
 Google Gemini (chat, plus a .gemini/ instruction-doc setup mirrored from .claude/) — used earlier and in parallel with Claude, mainly for the initial login/registration UI (including a restyle pass copying layout/visual language from a reference design), the left/right slide transition between login and signup, and general auth-page iteration.
 Gemini image generation — used to generate the site's background images (e.g. the auth-page background) and the app's text logo used in the navbar, dashboard sidebar, and mobile header.
 
 Both AI tools were used through chat interfaces guided by project instruction files (requirements.md, .claude/ and .gemini/ design docs — design-system.md, auth-page.md, ux-guide.md, animation-guidelines.md — and CLAUDE.md for workflow rules), so that both tools worked from the same spec rather than improvising independently.
 
-2. How they were used — concrete examples
+#### 2. How they were used — concrete examples
 
 Backend, test-first. Every REST endpoint (vehicle list/search/create/update/delete/purchase/restock, auth, purchases) was built by first asking Claude to write failing Supertest cases against the spec, confirming they failed for the right reason, then implementing the minimal code to pass them. Example: for POST /api/vehicles/:id/purchase, Claude wrote the 401/success/zero-stock/404 cases first, caught a test that "passed" only because no route existed yet, and flagged that explicitly instead of treating it as a real green.
 
@@ -224,7 +224,7 @@ Design fidelity and role compliance. Claude was given explicit "don't touch func
 
 Deployment troubleshooting. Claude was used to diagnose a live CORS misconfiguration on the deployed Render/Vercel setup and a role-based login bug where only the admin role worked correctly after deployment.
 
-3. Reflection — what worked, what didn't, where AI had to be overridden or corrected
+#### 3. Reflection — what worked, what didn't, where AI had to be overridden or corrected
 
 What worked well:
 
