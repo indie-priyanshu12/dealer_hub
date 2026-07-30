@@ -16,6 +16,7 @@ describe('Auth mode selection', () => {
 
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     expect(screen.queryByText('Full Name')).not.toBeInTheDocument();
+    expect(screen.getByText(/login with your email/i)).toBeInTheDocument();
   });
 
   it('starts on Register when opened with ?mode=register (Join Free intent)', () => {
@@ -24,6 +25,7 @@ describe('Auth mode selection', () => {
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
     expect(screen.getByText('Full Name')).toBeInTheDocument();
     expect(screen.getByText('Confirm Password')).toBeInTheDocument();
+    expect(screen.getByText(/be a user/i)).toBeInTheDocument();
   });
 
   it('still lets the user switch tabs manually after arriving in register mode', () => {

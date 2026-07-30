@@ -281,7 +281,8 @@ const Auth = () => {
             The wordmark sits centered inside text-logo.svg's large transparent
             canvas, so a short wrapper + oversized absolutely-centered image shows
             just the mark without the asset's padding forcing a tall header. ── */}
-        <div className="auth-mobile-logo" style={{ display: 'flex', justifyContent: 'center', height: '52px', position: 'relative', flexShrink: 0, overflow: 'visible' }}>
+        {/* ── Mobile-only brand header: logo pinned at the top with a small gap ── */}
+        <div className="auth-mobile-logo" style={{ display: 'flex', justifyContent: 'center', height: '52px', position: 'relative', overflow: 'visible', flexShrink: 0, marginTop: '6px' }}>
           <img
             src="/text-logo.svg"
             alt="DealerHub"
@@ -291,6 +292,26 @@ const Auth = () => {
             }}
           />
         </div>
+
+        {/* Mobile-only tagline: fixed-height band with modest, equal margins — the
+            form stacks right after it instead of the text floating in leftover space. */}
+        <p className="auth-mobile-tagline" style={{
+          margin: '10px 0', flex: '0 0 auto',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          fontFamily: "'Manrope', sans-serif", textAlign: 'center', letterSpacing: '0.2px', lineHeight: 1.4,
+        }}>
+          {isLogin ? (
+            <>
+              <span style={{ display: 'block', fontSize: '19px', fontWeight: 800, color: '#1a2744' }}>Welcome back to the garage —</span>
+              <span style={{ display: 'block', fontSize: '19px', fontWeight: 600, color: '#64748B' }}>login with your email.</span>
+            </>
+          ) : (
+            <>
+              <span style={{ display: 'block', fontSize: '19px', fontWeight: 800, color: '#1a2744' }}>New here? Be a User —</span>
+              <span style={{ display: 'block', fontSize: '19px', fontWeight: 600, color: '#64748B' }}>your dream car awaits.</span>
+            </>
+          )}
+        </p>
 
         {/* ── Hero Image Panel (swaps side via flex `order` + layout FLIP) ── */}
         <motion.div
@@ -582,15 +603,31 @@ const Auth = () => {
 
       <style>{`
         @media (max-width: 900px) {
-          .auth-shell { flex-direction: column !important; padding: 24px !important; gap: 16px !important; }
+          /* Logo pins to the top (small gap via its own margin), the tagline's
+             flex-1 zone centers the copy between logo and form, and the form takes
+             only its own height — so the column reads: logo, floating tagline, card. */
+          .auth-shell { flex-direction: column !important; padding: 16px !important; gap: 12px !important; }
           /* No hero image on phones — the text-logo header above stands in for it. */
           .auth-hero { display: none !important; }
-          .auth-form-container { flex: 1 1 auto !important; }
+          .auth-form-container { flex: 0 0 auto !important; }
           .auth-card-wrap { padding: 0 !important; max-width: 100% !important; }
-          .auth-card { padding: 32px 24px !important; }
+          /* Phone type scale + rhythm: the desktop sizes (40px heading, 60px fields,
+             34px section gaps) read oversized at 375px and push Register past one
+             viewport. Everything steps down a notch; fields widen from the trimmed
+             shell padding. */
+          .auth-card { padding: 26px 20px 24px !important; border-radius: 26px !important; }
+          .auth-segmented { margin-bottom: 22px !important; padding: 5px !important; }
+          .auth-segmented button { padding: 10px !important; font-size: 14px !important; }
+          .auth-heading-wrap { margin-bottom: 18px !important; }
+          .auth-heading-wrap h1 { font-size: 29px !important; letter-spacing: -0.6px !important; margin-bottom: 8px !important; }
+          .auth-heading-wrap p { font-size: 14px !important; }
+          .auth-field { margin-bottom: 10px !important; }
+          .auth-field-inner { height: 54px !important; padding: 10px 16px !important; }
+          .auth-card button[type="submit"] { height: 54px !important; font-size: 15px !important; }
         }
         @media (min-width: 901px) {
           .auth-mobile-logo { display: none !important; }
+          .auth-mobile-tagline { display: none !important; }
         }
         /* Tightens vertical rhythm on short viewports only — normal-height screens
            keep the spacing above untouched. Keeps Register from ever forcing a
