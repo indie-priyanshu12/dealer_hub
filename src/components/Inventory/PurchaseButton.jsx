@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../context/ToastContext';
 
 const PurchaseButton = ({ vehicleId, stock, onPurchase }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const toast = useToast();
 
   const outOfStock = stock <= 0;
   const disabled = outOfStock || loading;
@@ -33,12 +35,15 @@ const PurchaseButton = ({ vehicleId, stock, onPurchase }) => {
 
       if (!response.ok || !data.success) {
         setError(data.error || 'Unable to complete the purchase. Please try again.');
+        toast.error("We couldn't process your request. Please try again.");
         return;
       }
 
       onPurchase(data.data);
+      toast.success('Purchase confirmed.');
     } catch (err) {
       setError('Unable to complete the purchase. Please try again.');
+      toast.error("We couldn't process your request. Please try again.");
     } finally {
       setLoading(false);
     }

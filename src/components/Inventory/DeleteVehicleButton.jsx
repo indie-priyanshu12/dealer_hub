@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../context/ToastContext';
 
 const DeleteVehicleButton = ({ vehicleId, vehicleLabel, onDeleted }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const toast = useToast();
 
   const handleClick = async (event) => {
     event.stopPropagation();
@@ -33,12 +35,15 @@ const DeleteVehicleButton = ({ vehicleId, vehicleLabel, onDeleted }) => {
 
       if (!response.ok || !data.success) {
         setError(data.error || 'Unable to delete this vehicle. Please try again.');
+        toast.error("We couldn't process your request. Please try again.");
         return;
       }
 
       onDeleted(vehicleId);
+      toast.success('Vehicle deleted.');
     } catch (err) {
       setError('Unable to delete this vehicle. Please try again.');
+      toast.error("We couldn't process your request. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../context/ToastContext';
 
 const RestockModal = ({ vehicleId, vehicleLabel, currentStock, onRestocked }) => {
   const [open, setOpen] = useState(false);
   const [quantity, setQuantity] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const toast = useToast();
 
   const parsedQuantity = Number(quantity);
   const isValidQuantity = quantity !== '' && Number.isInteger(parsedQuantity) && parsedQuantity > 0;
@@ -46,13 +48,16 @@ const RestockModal = ({ vehicleId, vehicleLabel, currentStock, onRestocked }) =>
 
       if (!response.ok || !data.success) {
         setError(data.error || 'Unable to restock this vehicle. Please try again.');
+        toast.error("We couldn't process your request. Please try again.");
         return;
       }
 
       onRestocked(data.data);
+      toast.success('Inventory restocked successfully.');
       setOpen(false);
     } catch (err) {
       setError('Unable to restock this vehicle. Please try again.');
+      toast.error("We couldn't process your request. Please try again.");
     } finally {
       setLoading(false);
     }

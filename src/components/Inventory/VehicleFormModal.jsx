@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../context/ToastContext';
 
 const EMPTY_FORM = {
   vehicleId: '',
@@ -102,6 +103,7 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
   const [form, setForm] = useState(() => buildFormState(vehicle));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const toast = useToast();
 
   const isFormValid =
     form.vehicleId.trim() !== '' &&
@@ -152,13 +154,16 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
 
       if (!response.ok || !data.success) {
         setError(data.error || `Unable to ${isEditMode ? 'save changes to' : 'add'} this vehicle. Please try again.`);
+        toast.error("We couldn't process your request. Please try again.");
         return;
       }
 
       onSaved(data.data);
+      toast.success(isEditMode ? 'Changes saved.' : 'Vehicle successfully added.');
       setOpen(false);
     } catch (err) {
       setError(`Unable to ${isEditMode ? 'save changes to' : 'add'} this vehicle. Please try again.`);
+      toast.error("We couldn't process your request. Please try again.");
     } finally {
       setLoading(false);
     }
