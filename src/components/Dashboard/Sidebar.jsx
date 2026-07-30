@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutGrid, GitCompare, Mail, LogOut } from 'lucide-react';
+import { LayoutGrid, GitCompare, ShoppingBag, ClipboardList, Mail, LogOut } from 'lucide-react';
 import { useCompare } from '../../context/CompareContext';
 
 export const SIDEBAR_WIDTH = 240;
@@ -12,6 +12,23 @@ const NAV_ITEMS = [
   { label: 'Inventory', href: '/inventory', icon: LayoutGrid },
   { label: 'Compare', href: '/compare', icon: GitCompare },
 ];
+
+// Role-specific tail: customers get their own purchase history; admins get the
+// cross-customer ledger instead (an admin's job here is selling, not buying).
+const USER_NAV_ITEMS = [
+  { label: 'Purchases', href: '/purchases', icon: ShoppingBag },
+];
+const ADMIN_NAV_ITEMS = [
+  { label: 'Customer Orders', href: '/admin/purchases', icon: ClipboardList },
+];
+
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user'));
+  } catch {
+    return null;
+  }
+};
 
 const isItemActive = (pathname, href) => pathname === href || pathname.startsWith(`${href}/`);
 
@@ -35,6 +52,8 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const { compareIds } = useCompare();
   const contactActive = isItemActive(location.pathname, '/contact');
+  const isAdmin = getStoredUser()?.role === 'Admin';
+  const navItems = [...NAV_ITEMS, ...(isAdmin ? ADMIN_NAV_ITEMS : USER_NAV_ITEMS)];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -104,7 +123,7 @@ const Sidebar = () => {
         </Link>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-          {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
+          {navItems.map(({ label, href, icon: Icon }) => {
             const active = isItemActive(location.pathname, href);
             const badgeCount = label === 'Compare' ? compareIds.length : 0;
             return (

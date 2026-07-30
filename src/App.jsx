@@ -7,6 +7,8 @@ import VehicleDetailsPage from './pages/VehicleDetailsPage';
 import ComparePage from './pages/ComparePage';
 import ContactPage from './pages/ContactPage';
 import SpecialOffersPage from './pages/SpecialOffersPage';
+import PurchasesPage from './pages/PurchasesPage';
+import AdminPurchasesPage from './pages/AdminPurchasesPage';
 import CustomScrollbar from './components/CustomScrollbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
@@ -54,6 +56,22 @@ function App() {
               <Route path="/compare" element={<ComparePage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/special-offers" element={<SpecialOffersPage />} />
+              <Route
+                path="/purchases"
+                element={
+                  <ProtectedRoute>
+                    <PurchasesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/purchases"
+                element={
+                  <ProtectedRoute>
+                    <AdminPurchasesPage />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </div>
         </CompareProvider>

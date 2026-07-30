@@ -58,6 +58,22 @@ describe('Sidebar', () => {
     expect(compareLink).toHaveTextContent('2');
   });
 
+  it('shows a Purchases nav item for regular users', () => {
+    localStorage.setItem('user', JSON.stringify({ name: 'Reg', email: 'reg@x.com', role: 'User' }));
+    renderAt('/inventory');
+
+    expect(screen.getByRole('link', { name: /purchases/i })).toHaveAttribute('href', '/purchases');
+    expect(screen.queryByRole('link', { name: /customer orders/i })).not.toBeInTheDocument();
+  });
+
+  it('shows admins only Customer Orders, never a personal Purchases item', () => {
+    localStorage.setItem('user', JSON.stringify({ name: 'Boss', email: 'boss@x.com', role: 'Admin' }));
+    renderAt('/inventory');
+
+    expect(screen.getByRole('link', { name: /customer orders/i })).toHaveAttribute('href', '/admin/purchases');
+    expect(screen.queryByRole('link', { name: /^purchases$/i })).not.toBeInTheDocument();
+  });
+
   it('renders a Contact Us link pointing to /contact, positioned right before Logout', () => {
     renderAt('/inventory');
 

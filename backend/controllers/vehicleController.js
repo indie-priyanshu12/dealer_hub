@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Vehicle from '../models/Vehicle.js';
 import VehicleImage from '../models/VehicleImage.js';
+import Purchase from '../models/Purchase.js';
 
 const SORTABLE_FIELDS = ['price', 'year', 'make', 'model', 'mileage'];
 
@@ -229,6 +230,22 @@ export const purchaseVehicle = async (req, res) => {
 
     vehicle.stock -= 1;
     await vehicle.save();
+
+    // A receipt for every successful buy — buyer + vehicle details snapshotted at
+    // purchase time, feeding /api/purchases/mine and the admin's full ledger.
+    await Purchase.create({
+      user: req.user._id,
+      userName: req.user.name,
+      userEmail: req.user.email,
+      vehicle: vehicle._id,
+      vehicleId: vehicle.vehicleId,
+      make: vehicle.make,
+      model: vehicle.model,
+      category: vehicle.category,
+      image: vehicle.image,
+      pricePaid: vehicle.price,
+      currency: vehicle.currency,
+    });
 
     res.status(200).json({
       success: true,

@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes.js';
 import vehicleRoutes from './routes/vehicleRoutes.js';
+import purchaseRoutes from './routes/purchaseRoutes.js';
 import { normalizeOrigin } from './utils/normalizeOrigin.js';
 
 const app = express();
@@ -25,6 +26,7 @@ if (process.env.NODE_ENV === 'development') {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/purchases', purchaseRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
