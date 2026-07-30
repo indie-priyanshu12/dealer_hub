@@ -7,6 +7,7 @@ import DeleteVehicleButton from '../components/Inventory/DeleteVehicleButton';
 import RestockModal from '../components/Inventory/RestockModal';
 import VehicleFormModal from '../components/Inventory/VehicleFormModal';
 import { API_BASE_URL } from '../config/api';
+import VehicleGallery from '../components/Inventory/VehicleGallery';
 
 const getStoredUser = () => {
   try {
@@ -142,36 +143,8 @@ const VehicleDetailsPage = () => {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'start' }}>
-            <div style={{
-              position: 'relative',
-              borderRadius: '24px',
-              overflow: 'hidden',
-              background: '#ececeb',
-              aspectRatio: '4 / 3',
-            }}>
-              {vehicle.image ? (
-                <img
-                  src={vehicle.image}
-                  alt={`${vehicle.make} ${vehicle.model}`}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                <div style={{
-                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#a0a0a0', fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: '20px',
-                }}>
-                  {vehicle.make} {vehicle.model}
-                </div>
-              )}
-              {vehicle.featured && (
-                <div style={{
-                  position: 'absolute', top: '20px', left: '20px', background: '#1a2744', color: 'white',
-                  padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 700,
-                  fontFamily: "'Manrope', sans-serif",
-                }}>
-                  FEATURED
-                </div>
-              )}
+            <div>
+              <VehicleGallery vehicle={vehicle} />
             </div>
 
             <div>
