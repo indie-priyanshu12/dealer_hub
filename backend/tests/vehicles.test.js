@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import app from '../app.js';
 import Vehicle from '../models/Vehicle.js';
+import VehicleImage from '../models/VehicleImage.js';
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
@@ -21,6 +22,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await Vehicle.deleteMany({});
+  await VehicleImage.deleteMany({});
   await User.deleteMany({});
   
   await Vehicle.insertMany([
@@ -164,6 +166,77 @@ describe('POST /api/vehicles', () => {
 
     expect(res.statusCode).toEqual(400);
     expect(res.body.success).toBeFalsy();
+  });
+
+  describe('with image uploads (photos stored in MongoDB, same as seeded vehicles)', () => {
+    const JPEG_BYTES = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
+    const PNG_BYTES = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+    it('stores uploaded images as VehicleImage docs and rewrites image fields to API URLs', async () => {
+      const token = await getToken('Admin');
+
+      const res = await request(app)
+        .post('/api/vehicles')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          ...newVehicle,
+          imageUploads: [
+            { contentType: 'image/jpeg', data: JPEG_BYTES.toString('base64') },
+            { contentType: 'image/png', data: PNG_BYTES.toString('base64') },
+          ],
+        });
+
+      expect(res.statusCode).toEqual(201);
+      const created = res.body.data;
+      expect(created.image).toBe(`/api/vehicles/${created._id}/images/1`);
+      expect(created.images).toEqual([
+        `/api/vehicles/${created._id}/images/1`,
+        `/api/vehicles/${created._id}/images/2`,
+      ]);
+
+      const storedCount = await VehicleImage.countDocuments({ vehicle: created._id });
+      expect(storedCount).toBe(2);
+
+      // And the stored bytes round-trip through the public serving endpoint.
+      const img = await request(app).get(`/api/vehicles/${created._id}/images/2`);
+      expect(img.statusCode).toEqual(200);
+      expect(img.headers['content-type']).toBe('image/png');
+      expect(Buffer.compare(img.body, PNG_BYTES)).toBe(0);
+    });
+
+    it('rejects an unsupported content type without creating the vehicle', async () => {
+      const token = await getToken('Admin');
+
+      const res = await request(app)
+        .post('/api/vehicles')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          ...newVehicle,
+          imageUploads: [{ contentType: 'application/pdf', data: JPEG_BYTES.toString('base64') }],
+        });
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.success).toBeFalsy();
+      expect(await Vehicle.findOne({ vehicleId: newVehicle.vehicleId })).toBeNull();
+      expect(await VehicleImage.countDocuments()).toBe(0);
+    });
+
+    it('rejects malformed base64 image data without creating the vehicle', async () => {
+      const token = await getToken('Admin');
+
+      const res = await request(app)
+        .post('/api/vehicles')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          ...newVehicle,
+          imageUploads: [{ contentType: 'image/jpeg', data: 'not-valid-base64!!!' }],
+        });
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.success).toBeFalsy();
+      expect(await Vehicle.findOne({ vehicleId: newVehicle.vehicleId })).toBeNull();
+      expect(await VehicleImage.countDocuments()).toBe(0);
+    });
   });
 });
 

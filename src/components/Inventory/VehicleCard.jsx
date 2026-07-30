@@ -5,6 +5,7 @@ import PurchaseButton from './PurchaseButton';
 import DeleteVehicleButton from './DeleteVehicleButton';
 import RestockModal from './RestockModal';
 import CompareButton from './CompareButton';
+import { resolveImageUrl } from '../../config/api';
 
 // Shared easing for every layout (FLIP) transition in this card, so the image, content
 // block, and outer slot all settle in lockstep instead of drifting at different rates.
@@ -70,8 +71,8 @@ const VehicleCard = ({ vehicle, viewMode, isAdmin, onPurchase, onDelete, onResto
         
         {/* Only load the image if it is provided directly from the database */}
         {vehicle.image && (
-          <img 
-            src={vehicle.image}
+          <img
+            src={resolveImageUrl(vehicle.image)}
             alt={`${vehicle.make} ${vehicle.model}`}
             style={{
               position: 'absolute',

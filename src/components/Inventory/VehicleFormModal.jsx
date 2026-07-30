@@ -43,6 +43,21 @@ const buildFormState = (vehicle) => {
 
 const isNonEmptyNumber = (value) => value !== '' && Number.isFinite(Number(value));
 
+const UPLOAD_ACCEPT = 'image/jpeg,image/png,image/avif,image/webp';
+
+// FileReader gives a data: URL ("data:image/jpeg;base64,<payload>"); the API wants
+// the content type and the bare base64 payload as separate fields.
+const readFileAsUpload = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const [, data] = String(reader.result).split('base64,');
+      resolve({ name: file.name, contentType: file.type, data });
+    };
+    reader.onerror = () => reject(new Error(file.name));
+    reader.readAsDataURL(file);
+  });
+
 const buildPayload = (form) => {
   const payload = {
     vehicleId: form.vehicleId.trim(),
@@ -101,6 +116,7 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
   const isEditMode = !!vehicle;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(() => buildFormState(vehicle));
+  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const toast = useToast();
@@ -115,6 +131,7 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
 
   const openModal = () => {
     setForm(buildFormState(vehicle));
+    setPhotos([]);
     setError(null);
     setOpen(true);
   };
@@ -124,6 +141,18 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
   const handleChange = (event) => {
     const { name, type, value, checked } = event.target;
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handlePhotoChange = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+    try {
+      setPhotos(await Promise.all(files.map(readFileAsUpload)));
+      setError(null);
+    } catch {
+      setPhotos([]);
+      setError('One of the selected photos could not be read. Please try again.');
+    }
   };
 
   const handleSubmit = async () => {
@@ -140,7 +169,14 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(buildPayload(form)),
+        // Create-only: uploaded photos are stored in MongoDB by the backend, which
+        // rewrites the vehicle's image fields to its own /api serving URLs (the same
+        // shape seeded vehicles use). The PUT endpoint doesn't accept uploads (yet).
+        body: JSON.stringify(
+          !isEditMode && photos.length > 0
+            ? { ...buildPayload(form), imageUploads: photos.map(({ contentType, data }) => ({ contentType, data })) }
+            : buildPayload(form)
+        ),
       });
 
       if (response.status === 401) {
@@ -286,8 +322,29 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
               </div>
             </div>
 
+            {!isEditMode && (
+              <div style={{ marginBottom: '16px' }}>
+                <Field label="Photos (stored in the database)" htmlFor="photos">
+                  <input
+                    id="photos"
+                    name="photos"
+                    type="file"
+                    multiple
+                    accept={UPLOAD_ACCEPT}
+                    onChange={handlePhotoChange}
+                    style={{ ...inputStyle, padding: '8px 14px' }}
+                  />
+                </Field>
+                {photos.length > 0 && (
+                  <p style={{ margin: '6px 0 0', fontSize: '12px', fontWeight: 600, color: '#1a2744' }}>
+                    {photos.length} photo{photos.length > 1 ? 's' : ''} selected — the first becomes the cover image.
+                  </p>
+                )}
+              </div>
+            )}
+
             <div style={{ marginBottom: '16px' }}>
-              <Field label="Image URL" htmlFor="image">
+              <Field label={isEditMode ? 'Image URL' : 'Image URL (used only if no photos are selected)'} htmlFor="image">
                 <input id="image" name="image" style={inputStyle} value={form.image} onChange={handleChange} />
               </Field>
             </div>

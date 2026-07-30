@@ -48,6 +48,12 @@ const vehicleSchema = new mongoose.Schema({
   image: {
     type: String,
   },
+  // API URL paths for the full gallery (e.g. /api/vehicles/<id>/images/1). `image`
+  // above stays the primary/cover shot; both are filled in by the seed script.
+  images: {
+    type: [String],
+    default: undefined,
+  },
   stock: {
     type: Number,
     required: true,

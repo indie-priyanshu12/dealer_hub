@@ -13,7 +13,11 @@ const app = express();
 // dashboard env var goes wrong (missing scheme, trailing slash).
 const clientOrigin = normalizeOrigin(process.env.CLIENT_URL);
 app.use(cors(clientOrigin ? { origin: clientOrigin } : undefined));
-app.use(express.json());
+// Default json limit is 100kb — far too small for POST /api/vehicles' base64
+// imageUploads (a single showroom photo can exceed 1MB). Sized to comfortably fit
+// createVehicle's cap of 12 images × 8MB decoded is overkill; real galleries here
+// run ~100-500KB per photo, so 20mb leaves generous headroom without being unbounded.
+app.use(express.json({ limit: '20mb' }));
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
