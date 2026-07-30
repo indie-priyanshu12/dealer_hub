@@ -197,7 +197,7 @@ const VehicleFormModal = ({ vehicle, onSaved }) => {
       onSaved(data.data);
       toast.success(isEditMode ? 'Changes saved.' : 'Vehicle successfully added.');
       setOpen(false);
-    } catch (err) {
+    } catch {
       setError(`Unable to ${isEditMode ? 'save changes to' : 'add'} this vehicle. Please try again.`);
       toast.error("We couldn't process your request. Please try again.");
     } finally {

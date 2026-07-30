@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Scale, Star, Users, BadgeCheck, ArrowRight } from 'lucide-react';
+import { Star, Users, BadgeCheck, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Landing/Navbar';
 import MagneticButton from '../components/MagneticButton';
 

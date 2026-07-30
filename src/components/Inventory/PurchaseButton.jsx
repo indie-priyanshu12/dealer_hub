@@ -41,7 +41,7 @@ const PurchaseButton = ({ vehicleId, stock, onPurchase }) => {
 
       onPurchase(data.data);
       toast.success('Purchase confirmed.');
-    } catch (err) {
+    } catch {
       setError('Unable to complete the purchase. Please try again.');
       toast.error("We couldn't process your request. Please try again.");
     } finally {

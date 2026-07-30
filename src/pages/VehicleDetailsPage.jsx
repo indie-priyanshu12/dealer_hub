@@ -1,3 +1,5 @@
+// Full vehicle page (dashboard shell): photo gallery, specs, purchase, and the
+// admin-only edit/delete/restock actions. Deep-linkable at /inventory/:id.
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';

@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+// Shares the compare selection (up to MAX_COMPARE vehicle ids) across the card
+// buttons, the sidebar badge, and the compare page, persisted to localStorage so
+// a refresh keeps the picks.
 const CompareContext = createContext(null);
 
 const STORAGE_KEY = 'compareVehicleIds';

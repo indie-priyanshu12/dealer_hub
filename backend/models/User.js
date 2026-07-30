@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// Account model. Passwords are bcrypt-hashed in the pre-save hook below; `role`
+// is either 'User' (every self-registration) or 'Admin' (only ever created by the
+// startup env-var seed — see utils/seedAdminUser.js).
 const userSchema = new mongoose.Schema({
   name: {
     type: String,

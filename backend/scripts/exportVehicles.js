@@ -26,7 +26,7 @@ const run = async () => {
     await mongoose.connect(DB_URI);
     const vehicles = await Vehicle.find().sort({ vehicleId: 1 }).lean();
 
-    const records = vehicles.map(({ _id, __v, createdAt, updatedAt, image, images, ...rest }) => ({
+    const records = vehicles.map(({ _id, __v, createdAt: _createdAt, updatedAt: _updatedAt, image, images: _images, ...rest }) => ({
       ...rest,
       ...(image && !isRegeneratedImagePath(image) ? { image } : {}),
     }));

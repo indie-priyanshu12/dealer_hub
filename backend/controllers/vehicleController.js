@@ -13,7 +13,7 @@ export const getVehicles = async (req, res) => {
       count: vehicles.length,
       data: vehicles
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       error: 'Server Error'
@@ -80,7 +80,7 @@ export const searchVehicles = async (req, res) => {
       count: vehicles.length,
       data: vehicles
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       error: 'Server Error'
@@ -121,7 +121,7 @@ export const getVehicleImage = async (req, res) => {
     res.set('Cache-Control', 'public, max-age=86400');
     res.set('Content-Type', image.contentType);
     res.send(image.data);
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       error: 'Server Error'

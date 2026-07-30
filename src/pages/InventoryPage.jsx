@@ -1,3 +1,5 @@
+// The signed-in dashboard home: live inventory with search/filter/sort, list/grid
+// views, and admin management actions. Logged-out visitors get InventoryTeaser instead.
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../components/Dashboard/DashboardLayout';
 import VehicleCard from '../components/Inventory/VehicleCard';

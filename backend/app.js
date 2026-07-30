@@ -28,8 +28,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/purchases', purchaseRoutes);
 
-// Error handling middleware
-app.use((err, req, res, next) => {
+// Error handling middleware. The unused 4th parameter is required — Express only
+// treats a middleware as an error handler when its function takes exactly 4 args.
+app.use((err, req, res, _next) => {
   console.error('Server error:', err);
   const status = err.statusCode || 500;
   res.status(status).json({ message: err.message || 'Internal Server Error' });

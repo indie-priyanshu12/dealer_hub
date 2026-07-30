@@ -1,3 +1,5 @@
+// Public landing page: Lenis smooth scrolling drives the 3D car's scene-by-scene
+// choreography (CanvasBackground) beneath the scroll-story overlay.
 import React, { useEffect, useRef, useState } from 'react';
 import Lenis from 'lenis';
 import CanvasBackground from '../components/Landing/CanvasBackground';

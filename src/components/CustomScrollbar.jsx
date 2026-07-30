@@ -1,3 +1,5 @@
+// Global custom scrollbar: auto-hiding, draggable, scroll-linked thumb that
+// replaces the native browser scrollbar on desktop.
 import React, { useEffect, useRef, useState } from 'react';
 
 const TRACK_MARGIN = 8; // px gap from top/bottom of viewport

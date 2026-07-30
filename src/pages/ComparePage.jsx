@@ -1,3 +1,5 @@
+// Side-by-side spec table for the compare selection (max 3). Logged-out visitors
+// get the public CompareTeaser showcase instead.
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -87,7 +89,9 @@ const ComparePage = () => {
 
     fetchAll();
     return () => controller.abort();
-  }, [compareIds]);
+    // `user` is stable (set once from localStorage at mount) — included for hook
+    // correctness, it never re-triggers the fetch in practice.
+  }, [compareIds, user]);
 
   const handlePurchased = (updatedVehicle) => {
     setVehicles((prev) => prev.map((v) => (v._id === updatedVehicle._id ? updatedVehicle : v)));

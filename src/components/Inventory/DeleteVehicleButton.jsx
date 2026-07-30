@@ -41,7 +41,7 @@ const DeleteVehicleButton = ({ vehicleId, vehicleLabel, onDeleted }) => {
 
       onDeleted(vehicleId);
       toast.success('Vehicle deleted.');
-    } catch (err) {
+    } catch {
       setError('Unable to delete this vehicle. Please try again.');
       toast.error("We couldn't process your request. Please try again.");
     } finally {

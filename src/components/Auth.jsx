@@ -55,7 +55,9 @@ const Field = ({ label, name, type = 'text', placeholder, value, icon: Icon, isP
 
           <input
             name={name}
-            type={isPassword && !showPassword ? 'password' : 'text'}
+            // Password fields toggle via the eye button; everything else keeps its
+            // semantic type (email → email keyboard + autofill on mobile).
+            type={isPassword ? (showPassword ? 'text' : 'password') : type}
             value={value}
             onChange={onChange}
             onFocus={() => setIsFocused(true)}

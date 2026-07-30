@@ -8,7 +8,7 @@ export const getMyPurchases = async (req, res) => {
       count: purchases.length,
       data: purchases
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       error: 'Server Error'
@@ -24,7 +24,7 @@ export const getAllPurchases = async (req, res) => {
       count: purchases.length,
       data: purchases
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       error: 'Server Error'

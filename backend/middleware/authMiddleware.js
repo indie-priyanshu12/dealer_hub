@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
+// Verifies the Bearer JWT and loads the caller onto req.user (password excluded).
+// Every protected route runs this; admin-only routes chain `admin` after it.
 export const protect = async (req, res, next) => {
   let token;
 

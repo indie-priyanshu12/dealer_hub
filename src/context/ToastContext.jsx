@@ -3,6 +3,9 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
+// App-wide toast notifications: `useToast()` anywhere under <ToastProvider> returns
+// { success, error }, each showing a glass card (bottom-center) for 2 seconds with a
+// progress bar counting down its lifetime.
 const ToastContext = createContext(null);
 
 const TOAST_LIFETIME_MS = 2000;
@@ -24,8 +27,7 @@ export const useToast = () => {
   return ctx || { success: () => {}, error: () => {} };
 };
 
-const Toast = ({ toast, onDismiss, onPause, onResume }) => {
-  const [paused, setPaused] = useState(false);
+const Toast = ({ toast }) => {
   const { icon: Icon, accent, track } = VARIANTS[toast.type];
 
   return (
@@ -62,6 +64,7 @@ const Toast = ({ toast, onDismiss, onPause, onResume }) => {
         {toast.message}
       </span>
 
+      {/* Lifetime countdown — the bar drains over exactly TOAST_LIFETIME_MS */}
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '3px', background: track }}>
         <div style={{
           height: '100%',
@@ -70,14 +73,13 @@ const Toast = ({ toast, onDismiss, onPause, onResume }) => {
           animationDuration: `${TOAST_LIFETIME_MS}ms`,
           animationTimingFunction: 'linear',
           animationFillMode: 'forwards',
-          animationPlayState: paused ? 'paused' : 'running',
         }} />
       </div>
     </motion.div>
   );
 };
 
-const ToastViewport = ({ toasts, onDismiss, onPause, onResume }) => createPortal(
+const ToastViewport = ({ toasts }) => createPortal(
   <>
     <div className="dh-toast-viewport" style={{
       position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 2000,
@@ -87,7 +89,7 @@ const ToastViewport = ({ toasts, onDismiss, onPause, onResume }) => createPortal
     }}>
       <AnimatePresence>
         {toasts.map((toast) => (
-          <Toast key={toast.id} toast={toast} onDismiss={onDismiss} onPause={onPause} onResume={onResume} />
+          <Toast key={toast.id} toast={toast} />
         ))}
       </AnimatePresence>
     </div>
@@ -106,39 +108,18 @@ const ToastViewport = ({ toasts, onDismiss, onPause, onResume }) => createPortal
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
-  const timers = useRef({}); // id -> { timerId, remaining, startedAt }
+  const timers = useRef({}); // id -> timeout id, cleared on dismiss
 
   const dismiss = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
-    const meta = timers.current[id];
-    if (meta) {
-      clearTimeout(meta.timerId);
-      delete timers.current[id];
-    }
+    clearTimeout(timers.current[id]);
+    delete timers.current[id];
   }, []);
 
   const show = useCallback((type, message) => {
     const id = ++nextToastId;
-    timers.current[id] = {
-      remaining: TOAST_LIFETIME_MS,
-      startedAt: Date.now(),
-      timerId: setTimeout(() => dismiss(id), TOAST_LIFETIME_MS),
-    };
+    timers.current[id] = setTimeout(() => dismiss(id), TOAST_LIFETIME_MS);
     setToasts((prev) => [...prev, { id, type, message }].slice(-MAX_VISIBLE));
-  }, [dismiss]);
-
-  const pause = useCallback((id) => {
-    const meta = timers.current[id];
-    if (!meta) return;
-    clearTimeout(meta.timerId);
-    meta.remaining -= Date.now() - meta.startedAt;
-  }, []);
-
-  const resume = useCallback((id) => {
-    const meta = timers.current[id];
-    if (!meta) return;
-    meta.startedAt = Date.now();
-    meta.timerId = setTimeout(() => dismiss(id), Math.max(meta.remaining, 0));
   }, [dismiss]);
 
   const value = {
@@ -149,7 +130,7 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <ToastViewport toasts={toasts} onDismiss={dismiss} onPause={pause} onResume={resume} />
+      <ToastViewport toasts={toasts} />
     </ToastContext.Provider>
   );
 };

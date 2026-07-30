@@ -1,6 +1,8 @@
 import React from 'react';
 import { useCompare, MAX_COMPARE } from '../../context/CompareContext';
 
+// Per-card "Compare (n/3)" toggle — disables once the selection is full unless
+// this vehicle is already one of the picks.
 const CompareButton = ({ vehicleId }) => {
   const { compareIds, isInCompare, toggleCompare } = useCompare();
   const selected = isInCompare(vehicleId);

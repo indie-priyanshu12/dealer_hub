@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+// List/Grid switch for the inventory — the active option carries a shared-layout
+// pill that glides between the two buttons.
 const ViewToggle = ({ viewMode, setViewMode }) => {
   return (
     <div style={{

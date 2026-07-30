@@ -55,7 +55,7 @@ const RestockModal = ({ vehicleId, vehicleLabel, currentStock, onRestocked }) =>
       onRestocked(data.data);
       toast.success('Inventory restocked successfully.');
       setOpen(false);
-    } catch (err) {
+    } catch {
       setError('Unable to restock this vehicle. Please try again.');
       toast.error("We couldn't process your request. Please try again.");
     } finally {
