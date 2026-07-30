@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import MagneticButton from '../MagneticButton';
+
+// The current page's nav link wears a blue glass capsule.
+const isLinkActive = (pathname, href) =>
+  href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
 
 // Lets the click's reward animation (scale pulse / arrow launch) play out before the
 // route actually swaps, so navigating never feels like an instant, jarring cut.
@@ -22,6 +26,7 @@ const Navbar = () => {
   const [launching, setLaunching] = useState(null); // null | 'login' | 'join' | 'mobile' | 'logout'
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -100,33 +105,47 @@ const Navbar = () => {
           alignItems: 'center',
           gap: '4px',
         }} className="nav-desktop">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              style={{
-                fontFamily: "'Manrope', sans-serif",
-                fontWeight: 500,
-                fontSize: '14px',
-                color: '#3d4a6b',
-                textDecoration: 'none',
-                padding: '8px 14px',
-                borderRadius: '8px',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(26,39,68,0.07)';
-                e.currentTarget.style.color = '#1a2744';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#3d4a6b';
-              }}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = isLinkActive(location.pathname, link.href);
+            return (
+              <Link
+                key={link.label}
+                to={link.href}
+                aria-current={active ? 'page' : undefined}
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontWeight: active ? 700 : 500,
+                  fontSize: '14px',
+                  color: active ? '#2563EB' : '#3d4a6b',
+                  textDecoration: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '999px',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                  // Blue glass capsule on the selected page's link
+                  background: active ? 'rgba(37,99,235,0.12)' : 'transparent',
+                  border: active ? '1px solid rgba(37,99,235,0.25)' : '1px solid transparent',
+                  backdropFilter: active ? 'blur(10px)' : 'none',
+                  WebkitBackdropFilter: active ? 'blur(10px)' : 'none',
+                  boxShadow: active
+                    ? 'inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 14px rgba(37,99,235,0.18)'
+                    : 'none',
+                }}
+                onMouseEnter={e => {
+                  if (active) return;
+                  e.currentTarget.style.background = 'rgba(26,39,68,0.07)';
+                  e.currentTarget.style.color = '#1a2744';
+                }}
+                onMouseLeave={e => {
+                  if (active) return;
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#3d4a6b';
+                }}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         {/* ── Action Buttons ── */}
@@ -260,22 +279,30 @@ const Navbar = () => {
           gap: '24px',
           animation: 'fadeIn 0.25s ease',
         }}>
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              onClick={() => setMenuOpen(false)}
-              style={{
-                fontFamily: "'Manrope', sans-serif",
-                fontWeight: 600,
-                fontSize: '22px',
-                color: '#1a2744',
-                textDecoration: 'none',
-              }}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = isLinkActive(location.pathname, link.href);
+            return (
+              <Link
+                key={link.label}
+                to={link.href}
+                onClick={() => setMenuOpen(false)}
+                aria-current={active ? 'page' : undefined}
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontWeight: active ? 700 : 600,
+                  fontSize: '22px',
+                  color: active ? '#2563EB' : '#1a2744',
+                  textDecoration: 'none',
+                  padding: '8px 22px',
+                  borderRadius: '999px',
+                  background: active ? 'rgba(37,99,235,0.12)' : 'transparent',
+                  border: active ? '1px solid rgba(37,99,235,0.25)' : '1px solid transparent',
+                }}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <div style={{ height: '1px', width: '60px', background: 'rgba(0,0,0,0.1)', margin: '8px 0' }} />
           {isLoggedIn ? (
             <MagneticButton

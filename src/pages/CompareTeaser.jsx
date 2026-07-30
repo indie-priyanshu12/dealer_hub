@@ -86,7 +86,7 @@ const CompareTeaser = () => {
         >
           <h1 style={{
             fontFamily: "'Manrope', sans-serif", fontSize: 'clamp(34px, 5vw, 52px)', fontWeight: 800,
-            color: '#1a2744', letterSpacing: '-1.5px', lineHeight: 1.1, margin: '0 0 14px',
+            color: '#1a2744', letterSpacing: '-1.5px', lineHeight: 1.1, margin: '0 0 8px', marginTop: '-26px',
           }}>
             Compare wisely before you buy.
           </h1>
